@@ -11,7 +11,9 @@ builder.Services.AddControllersWithViews();
 string connectionString = builder.Environment.IsDevelopment() ? "DBConnectionString" : "DBProductionConnectiongString";
 builder.Services.AddDbContext<AppDBContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString(connectionString)));
 
-//builder.Services.AddIdentity<UserModel, IdentityRole>().AddEntityFrameworkStores<AppDBContext>().AddDefaultTokenProviders();
+builder.Services.AddIdentity<UserModel, IdentityRole>()
+                .AddEntityFrameworkStores<AppDBContext>()
+                .AddDefaultTokenProviders();
 
 
 var app = builder.Build();
@@ -28,7 +30,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

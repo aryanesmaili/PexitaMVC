@@ -1,9 +1,10 @@
-﻿namespace PexitaMVC.Core.Entites
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace PexitaMVC.Core.Entites
 {
-    public class UserModel
+    public class UserModel : IdentityUser
     {
-        public int Id { get; set; }
-        public string IdentityUserId { get; set; } = string.Empty;
+        public required string Name { get; set; }
         public ICollection<PayingSessionModel> PayingSessions { get; set; } = [];
     }
 }

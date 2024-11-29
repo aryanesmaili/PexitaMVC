@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using PexitaMVC.Core.Entites;
 
 namespace PexitaMVC.Infrastructure.Data
 {
-    public class AppDBContext : DbContext
+    public class AppDBContext : IdentityDbContext<UserModel>
     {
         public AppDBContext(DbContextOptions<AppDBContext> options) : base(options)
         {
@@ -21,8 +22,10 @@ namespace PexitaMVC.Infrastructure.Data
                 .HasMany(x => x.PayingSessions)
                 .WithMany(x => x.Users)
                 .UsingEntity(j => j.ToTable("UserSessions"));
+
+            base.OnModelCreating(modelBuilder);
         }
-        public required DbSet<UserModel> Users { get; set; }
-        public required DbSet<PayingSessionModel> Payments { get; set; }
+        public required DbSet<PayingSessionModel> PaymentSessions { get; set; }
+        public required DbSet<PaymentModel> Payments { get; set; }
     }
 }

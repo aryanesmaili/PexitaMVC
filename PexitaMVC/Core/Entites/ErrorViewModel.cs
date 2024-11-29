@@ -1,4 +1,4 @@
-namespace PexitaMVC.Presentation.Models
+namespace PexitaMVC.Core.Entites
 {
     public class ErrorViewModel
     {

@@ -1,8 +1,7 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using PexitaMVC.Presentation.Models;
-
-namespace PexitaMVC.Presentation.Controllers
+using PexitaMVC.Core.Entites;
+namespace PexitaMVC.Controllers
 {
     public class HomeController : Controller
     {
