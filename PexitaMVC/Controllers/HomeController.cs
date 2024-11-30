@@ -1,6 +1,6 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using PexitaMVC.Core.Entites;
+using System.Diagnostics;
 namespace PexitaMVC.Controllers
 {
     public class HomeController : Controller
