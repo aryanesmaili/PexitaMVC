@@ -14,13 +14,13 @@
 
     public interface IUpdateRepository<T> where T : class
     {
-        T Update(T entity);
-        Task<T> UpdateAsync(T entity);
+        void Update(T entity);
+        Task UpdateAsync(T entity);
     }
 
     public interface IDeleteRepository<T> where T : class
     {
-        T Delete(int id);
-        Task<T> DeleteAsync(int id);
+        void Delete(T Entity);
+        Task DeleteAsync(T Entity);
     }
 }

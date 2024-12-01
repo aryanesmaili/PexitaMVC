@@ -1,7 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using PexitaMVC.Application.Interfaces;
+using PexitaMVC.Application.MapperConfigs;
 using PexitaMVC.Core.Entites;
+using PexitaMVC.Core.Interfaces;
 using PexitaMVC.Infrastructure.Data;
+using PexitaMVC.Infrastructure.Repositories;
+using PexitaMVC.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +20,16 @@ builder.Services.AddIdentity<UserModel, IdentityRole>()
                 .AddEntityFrameworkStores<AppDBContext>()
                 .AddDefaultTokenProviders();
 
+// Register Application Services
+builder.Services.AddTransient<IBillService, BillService>();
+
+// Register Domain Interfaces
+builder.Services.AddTransient<IBillRepository, BillRepository>();
+
+// Register Mappers.
+builder.Services.AddAutoMapper(typeof(BillMapperConfig));
+builder.Services.AddAutoMapper(typeof(UserMapperConfig));
+builder.Services.AddAutoMapper(typeof(PaymentMapperConfig));
 
 var app = builder.Build();
 
