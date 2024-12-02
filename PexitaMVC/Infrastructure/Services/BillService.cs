@@ -32,11 +32,12 @@ namespace PexitaMVC.Infrastructure.Services
             BillModel newRecord = _mapper.Map<BillModel>(billCreateDTO);
 
             // now we resolve the users present in this bill
-            List<UserModel> users = await _userRepository.GetUsersByUsernamesAsync(billCreateDTO.Usernames.Keys);
-            newRecord.Users = users;
+            UserModel Owner = _userRepository.GetByID(billCreateDTO.OwnerID);
+            newRecord.UserID = Owner.Id;
+            newRecord.User = Owner;
 
             // then we resolve and create payment models for this bill.
-            List<PaymentModel> payments = CreatePayments(billCreateDTO.Usernames, newRecord);
+            List<PaymentModel> payments = await CreatePayments(billCreateDTO.Usernames, newRecord);
             newRecord.BillPayments = payments;
 
             // we add the new record to database using the bill repository.
@@ -52,13 +53,15 @@ namespace PexitaMVC.Infrastructure.Services
         /// <param name="Users">Users Participating in bill along with their pay amount.</param>
         /// <param name="bill">the bill this payment belongs to.</param>
         /// <returns></returns>
-        private static List<PaymentModel> CreatePayments(Dictionary<string, double> Users, BillModel bill)
+        private async Task<List<PaymentModel>> CreatePayments(Dictionary<string, double> Users, BillModel bill)
         {
             List<PaymentModel> payments = [];
 
+            HashSet<UserModel> users = new(await _userRepository.GetUsersByUsernamesAsync(Users.Keys)); // Converted to HashSet to increase search speed and ensure uniqueness.
+
             foreach (var item in Users)
             {
-                UserModel user = bill.Users.ToHashSet().First(x => x.UserName == item.Key); // Converted to HashSet to increase search speed.
+                UserModel user = users.First(x => x.UserName == item.Key);
                 payments.Add(new PaymentModel
                 {
                     Bill = bill,

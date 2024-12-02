@@ -25,6 +25,7 @@ builder.Services.AddTransient<IBillService, BillService>();
 
 // Register Domain Interfaces
 builder.Services.AddTransient<IBillRepository, BillRepository>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
 
 // Register Mappers.
 builder.Services.AddAutoMapper(typeof(BillMapperConfig));

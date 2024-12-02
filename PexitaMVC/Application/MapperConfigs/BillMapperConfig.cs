@@ -13,20 +13,20 @@ namespace PexitaMVC.Application.MapperConfigs
                 ;
 
             CreateMap<BillModel, BillDTO>()
-                .ForMember(x => x.Users, opt => opt.MapFrom<BillUserResolver>())
+                .ForMember(x => x.User, opt => opt.MapFrom<BillUserResolver>())
                 .ForMember(x => x.Payments, opt => opt.MapFrom<BillPaymentResolver>());
 
             CreateMap<BillModel, SubBillDTO>();
         }
     }
 
-    public class BillUserResolver(IMapper mapper) : IValueResolver<BillModel, BillDTO, List<SubUserDTO>>
+    public class BillUserResolver(IMapper mapper) : IValueResolver<BillModel, BillDTO, SubUserDTO>
     {
         private readonly IMapper _mapper = mapper;
 
-        public List<SubUserDTO> Resolve(BillModel source, BillDTO destination, List<SubUserDTO> destMember, ResolutionContext context)
+        public SubUserDTO Resolve(BillModel source, BillDTO destination, SubUserDTO destMember, ResolutionContext context)
         {
-            return source.Users.Select(_mapper.Map<SubUserDTO>).ToList();
+            return _mapper.Map<SubUserDTO>(source.User);
         }
     }
 

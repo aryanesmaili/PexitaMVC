@@ -19,7 +19,8 @@
 
         public bool IsCompleted => BillPayments.All(x => x.IsPaid);
 
-        public ICollection<UserModel> Users { get; set; } = [];
+        public required string UserID { get; set; }
+        public required UserModel User { get; set; }
         public ICollection<PaymentModel> BillPayments { get; set; } = [];
     }
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -48,20 +49,6 @@ namespace PexitaMVC.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Bills",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TotalAmount = table.Column<double>(type: "float", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Bills", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -171,6 +158,26 @@ namespace PexitaMVC.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Bills",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TotalAmount = table.Column<double>(type: "float", nullable: false),
+                    UserID = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Bills", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Bills_AspNetUsers_UserID",
+                        column: x => x.UserID,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Payments",
                 columns: table => new
                 {
@@ -193,30 +200,6 @@ namespace PexitaMVC.Migrations
                     table.ForeignKey(
                         name: "FK_Payments_Bills_BillID",
                         column: x => x.BillID,
-                        principalTable: "Bills",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserSessions",
-                columns: table => new
-                {
-                    BillsId = table.Column<int>(type: "int", nullable: false),
-                    UsersId = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserSessions", x => new { x.BillsId, x.UsersId });
-                    table.ForeignKey(
-                        name: "FK_UserSessions_AspNetUsers_UsersId",
-                        column: x => x.UsersId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_UserSessions_Bills_BillsId",
-                        column: x => x.BillsId,
                         principalTable: "Bills",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -262,6 +245,11 @@ namespace PexitaMVC.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Bills_UserID",
+                table: "Bills",
+                column: "UserID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Payments_BillID",
                 table: "Payments",
                 column: "BillID");
@@ -270,11 +258,6 @@ namespace PexitaMVC.Migrations
                 name: "IX_Payments_UserId",
                 table: "Payments",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserSessions_UsersId",
-                table: "UserSessions",
-                column: "UsersId");
         }
 
         /// <inheritdoc />
@@ -299,16 +282,13 @@ namespace PexitaMVC.Migrations
                 name: "Payments");
 
             migrationBuilder.DropTable(
-                name: "UserSessions");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Bills");
 
             migrationBuilder.DropTable(
-                name: "Bills");
+                name: "AspNetUsers");
         }
     }
 }

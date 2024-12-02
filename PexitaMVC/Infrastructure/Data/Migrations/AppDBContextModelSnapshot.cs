@@ -22,21 +22,6 @@ namespace PexitaMVC.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BillModelUserModel", b =>
-                {
-                    b.Property<int>("BillsId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UsersId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("BillsId", "UsersId");
-
-                    b.HasIndex("UsersId");
-
-                    b.ToTable("UserSessions", (string)null);
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -185,7 +170,13 @@ namespace PexitaMVC.Migrations
                     b.Property<double>("TotalAmount")
                         .HasColumnType("float");
 
+                    b.Property<string>("UserID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserID");
 
                     b.ToTable("Bills");
                 });
@@ -289,21 +280,6 @@ namespace PexitaMVC.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("BillModelUserModel", b =>
-                {
-                    b.HasOne("PexitaMVC.Core.Entites.BillModel", null)
-                        .WithMany()
-                        .HasForeignKey("BillsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("PexitaMVC.Core.Entites.UserModel", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -355,6 +331,17 @@ namespace PexitaMVC.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("PexitaMVC.Core.Entites.BillModel", b =>
+                {
+                    b.HasOne("PexitaMVC.Core.Entites.UserModel", "User")
+                        .WithMany("Bills")
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("PexitaMVC.Core.Entites.PaymentModel", b =>
                 {
                     b.HasOne("PexitaMVC.Core.Entites.BillModel", "Bill")
@@ -381,6 +368,8 @@ namespace PexitaMVC.Migrations
 
             modelBuilder.Entity("PexitaMVC.Core.Entites.UserModel", b =>
                 {
+                    b.Navigation("Bills");
+
                     b.Navigation("UserPayments");
                 });
 #pragma warning restore 612, 618

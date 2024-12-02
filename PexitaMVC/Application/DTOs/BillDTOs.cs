@@ -9,13 +9,14 @@
 
     public class BillCreateDTO : BaseBillDTO
     {
+        public int OwnerID { get; set; }
         public required Dictionary<string, double> Usernames { get; set; }
     }
 
     public class BillDTO : BaseBillDTO
     {
         public int ID { get; set; }
-        public required List<SubUserDTO> Users { get; set; }
+        public required SubUserDTO User { get; set; }
         public required List<SubPaymentDTO> Payments { get; set; }
     }
 
