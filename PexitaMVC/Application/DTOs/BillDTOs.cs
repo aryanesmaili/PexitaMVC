@@ -4,7 +4,6 @@
     {
         public required string Title { get; set; }
         public double TotalAmount { get; set; }
-        public bool IsCompleted { get; set; }
     }
 
     public class BillCreateDTO : BaseBillDTO
@@ -16,12 +15,17 @@
     public class BillDTO : BaseBillDTO
     {
         public int ID { get; set; }
+        public bool IsCompleted { get; set; }
         public required SubUserDTO User { get; set; }
         public required List<SubPaymentDTO> Payments { get; set; }
     }
 
     public class SubBillDTO : BaseBillDTO
     {
+        public bool IsCompleted { get; set; }
         public int ID { get; set; }
     }
+
+    public class UpdateBillDTO : BaseBillDTO { }
+
 }

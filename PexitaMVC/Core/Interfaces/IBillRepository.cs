@@ -7,8 +7,10 @@ namespace PexitaMVC.Core.Interfaces
         IGetRepository<BillModel>,
         IAddRepository<BillModel>,
         IUpdateRepository<BillModel>,
-        IDeleteRepository<BillModel>
+        IDeleteRepository<BillModel>,
+        IGetWithRelationsRepository<BillModel>
     {
         IEnumerable<BillModel> GetPayersBills(int PayerID);
+        Task<IEnumerable<BillModel>> GetPayersBillsAsync(int PayerID);
     }
 }

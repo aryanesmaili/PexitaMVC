@@ -11,7 +11,7 @@ namespace PexitaMVC.Core.Repositories
     public interface IGetWithRelationsRepository<T> where T : class
     {
         T GetWithRelations(int id, params Expression<Func<T, object>>[] expressions);
-        Task<T> GetWithRelationsAsync(int id, Expression<Func<T, object>>[] expressions);
+        Task<T> GetWithRelationsAsync(int id, params Expression<Func<T, object>>[] expressions);
     }
 
     public interface IAddRepository<T> where T : class
