@@ -5,15 +5,9 @@ namespace PexitaMVC.Core.Interfaces
 {
     public interface IUserRepository :
         IGetRepository<UserModel>,
-        IAddRepository<UserModel>,
+        IGetWithRelationsRepository<UserModel>,
         IUpdateRepository<UserModel>
     {
-        bool IsUserInDebt(int UserID);
-        Task<bool> IsUserInDebtAsync(int UserID);
-
-        IEnumerable<BillModel> GetUnpaidBillsForUser(int UserID);
-        Task<IEnumerable<BillModel>> GetUnpaidBillsForUserAsync(int UserID);
-
         UserModel GetByUsername(string Username);
         Task<UserModel> GetByUsernameAsync(string Username);
 

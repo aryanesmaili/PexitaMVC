@@ -22,6 +22,7 @@ builder.Services.AddIdentity<UserModel, IdentityRole>()
 
 // Register Application Services
 builder.Services.AddTransient<IBillService, BillService>();
+builder.Services.AddTransient<IUserService, UserService>();
 
 // Register Domain Interfaces
 builder.Services.AddTransient<IBillRepository, BillRepository>();
