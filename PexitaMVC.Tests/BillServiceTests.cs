@@ -1,11 +1,9 @@
-using PexitaMVC.Infrastructure.Services;
-using PexitaMVC.Infrastructure.Data;
-using Moq;
-using Microsoft.EntityFrameworkCore;
-using PexitaMVC.Core.Entites;
 using AutoMapper;
-using PexitaMVC.Core.Interfaces;
+using Moq;
 using PexitaMVC.Application.DTOs;
+using PexitaMVC.Core.Entites;
+using PexitaMVC.Core.Interfaces;
+using PexitaMVC.Infrastructure.Services;
 
 namespace PexitaMVC.Tests
 {
@@ -36,11 +34,12 @@ namespace PexitaMVC.Tests
             {
                 OwnerID = 1,
                 Title = "Dinner",
-                Usernames = new Dictionary<string, double> { { "John", 50.0 } }
+                Usernames = new Dictionary<string, double> { { "John", 50.0 } },
+                TotalAmount = 50.0
             };
 
             UserModel owner = new() { Id = "1", UserName = "Owner", Name = "Eli" };
-            BillModel billModel = new() { Id = 1, Title = billCreateDTO.Title, User = owner, UserID = owner.Id };
+            BillModel billModel = new() { Id = 1, Title = billCreateDTO.Title, Owner = owner, OwnerID = owner.Id, TotalAmount = billCreateDTO.TotalAmount };
             UserModel payer = new() { Id = "2", Name = "John", UserName = "John" };
             List<PaymentModel> paymentModels = [new() { User = payer, Amount = 50.0, Bill = billModel, UserId = payer.Id }];
 
@@ -74,10 +73,10 @@ namespace PexitaMVC.Tests
         {
             // Arrange
             var billId = 1;
-            var bill = new BillModel { Id = billId, Title = "Dinner", User = new UserModel { Name = "Alireza" }, UserID = "1" };
+            var bill = new BillModel { Id = billId, Title = "Dinner", Owner = new UserModel { Name = "Alireza" }, OwnerID = "1", TotalAmount = 50.0 };
 
             _billRepositoryMock.Setup(b => b.GetByIDAsync(billId)).ReturnsAsync(bill);
-            _billRepositoryMock.Setup(b => b.DeleteAsync(bill)).Returns(Task.CompletedTask);
+            _billRepositoryMock.Setup(b => b.DeleteAsync(bill)).ReturnsAsync(1);
 
             // Act
             await _billService.DeleteBillAsync(billId);

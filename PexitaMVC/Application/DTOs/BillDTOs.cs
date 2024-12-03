@@ -3,7 +3,7 @@
     public class BaseBillDTO
     {
         public required string Title { get; set; }
-        public double TotalAmount { get; set; }
+        public required double TotalAmount { get; set; }
     }
 
     public class BillCreateDTO : BaseBillDTO
@@ -15,7 +15,7 @@
     public class BillDTO : BaseBillDTO
     {
         public int ID { get; set; }
-        public bool IsCompleted { get => Payments.All(x => x.IsPaid);}
+        public bool IsCompleted { get => Payments.All(x => x.IsPaid); }
         public required SubUserDTO Owner { get; set; }
         public required List<SubPaymentDTO> Payments { get; set; }
     }
@@ -27,5 +27,4 @@
     }
 
     public class UpdateBillDTO : BaseBillDTO { }
-
 }

@@ -17,8 +17,8 @@ namespace PexitaMVC.Infrastructure.Data
 
             modelBuilder.Entity<UserModel>()
                 .HasMany(x => x.Bills)
-                .WithOne(x => x.User)
-                .HasForeignKey(x => x.UserID)
+                .WithOne(x => x.Owner)
+                .HasForeignKey(x => x.OwnerID)
                 .OnDelete(DeleteBehavior.NoAction);
 
             modelBuilder.Entity<UserModel>()

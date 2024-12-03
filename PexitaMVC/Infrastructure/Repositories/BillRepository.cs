@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
-using PexitaMVC.Application.Exceptions;
 using PexitaMVC.Core.Entites;
 using PexitaMVC.Core.Interfaces;
 using PexitaMVC.Infrastructure.Data;
@@ -13,78 +11,186 @@ namespace PexitaMVC.Infrastructure.Repositories
     {
         private readonly AppDBContext _context = context;
 
+        /// <summary>
+        /// Adds a new bill to the database.
+        /// </summary>
+        /// <param name="entity">The bill to add.</param>
+        /// <returns>The added BillModel with its generated ID and other details.</returns>
         public BillModel Add(BillModel entity)
         {
+            // Serialize the bill payments to JSON for storage
             string payments = JsonSerializer.Serialize(entity.BillPayments.ToList());
-            var bill = _context.Bills.FromSqlInterpolated(
-                $"EXECUTE pr_InsertBill @Title ={entity.Title}, @TotalAmount = {entity.TotalAmount}, @UserID = {entity.UserID}, @PaymentsJson = {payments};"
-                ).First();
 
-            // EF doesn’t automatically populate navigation properties when executing raw SQL queries. 
-            _context.Entry(bill).Reference(b => b.User).Load(); // Load the User
-            _context.Entry(bill).Collection(b => b.BillPayments).Load(); // Load the Payments
-            return bill;
+            // Execute the stored procedure to insert the bill and return the result
+            List<BillPaymentUserDBResult> result = _context.Set<BillPaymentUserDBResult>()
+                .FromSqlInterpolated(
+                $"EXECUTE pr_InsertBill @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount}, @UserID = {entity.OwnerID}, @PaymentsJson = {payments};"
+                ).ToList();
+
+            // Map the result to BillModel, assuming only one bill record is returned
+            BillPaymentUserDBResult bill = result.First();
+            BillModel billModel = new()
+            {
+                Id = bill.BillID,
+                Title = bill.Title!,
+                TotalAmount = bill.TotalAmount,
+                OwnerID = bill.UserID!,
+                Owner = new()
+                {
+                    Name = bill.UserName!,
+                    UserName = bill.UserUserName,
+                    Email = bill.UserEmail,
+                    PhoneNumber = bill.UserPhoneNumber
+                },
+                BillPayments = result.Select(payment => new PaymentModel
+                {
+                    Id = payment.PaymentID,
+                    Amount = payment.Amount,
+                    IsPaid = payment.IsPaid,
+                    UserId = payment.PaymentUserID!,
+                    BillID = bill.BillID
+
+                }).ToList()
+            };
+            return billModel;
         }
 
+        /// <summary>
+        /// Adds a new bill to the database asynchronously.
+        /// </summary>
+        /// <param name="entity">The bill to add.</param>
+        /// <returns>A Task containing the added BillModel with its generated ID and other details.</returns>
         public async Task<BillModel> AddAsync(BillModel entity)
         {
+            // Serialize the bill payments to JSON for storage
             string payments = JsonSerializer.Serialize(entity.BillPayments.ToList());
 
-            var bill = await _context.Bills.FromSqlInterpolated(
-                $"EXECUTE pr_InsertBill @Title ={entity.Title}, @TotalAmount = {entity.TotalAmount}, @UserID = {entity.UserID}, @PaymentsJson = {payments};"
-                ).FirstAsync();
+            // Execute the stored procedure to insert the bill asynchronously and return the result
+            List<BillPaymentUserDBResult> result = await _context.Set<BillPaymentUserDBResult>()
+                .FromSqlInterpolated(
+                $"EXECUTE pr_InsertBill @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount}, @UserID = {entity.OwnerID}, @PaymentsJson = {payments};"
+                ).ToListAsync();
 
-            // EF doesn’t automatically populate navigation properties when executing raw SQL queries. 
-            await _context.Entry(bill).Reference(b => b.User).LoadAsync(); // Load the User
-            await _context.Entry(bill).Collection(b => b.BillPayments).LoadAsync(); // Load the Payments
-            return bill;
+            // Map the result to BillModel, assuming only one bill record is returned
+            BillPaymentUserDBResult bill = result.First();
+            BillModel billModel = new()
+            {
+                Id = bill.BillID,
+                Title = bill.Title!,
+                TotalAmount = bill.TotalAmount,
+                OwnerID = bill.UserID!,
+                Owner = new()
+                {
+                    Name = bill.UserName!,
+                    UserName = bill.UserUserName,
+                    Email = bill.UserEmail,
+                    PhoneNumber = bill.UserPhoneNumber
+                },
+                BillPayments = result.Select(payment => new PaymentModel
+                {
+                    Id = payment.PaymentID,
+                    Amount = payment.Amount,
+                    IsPaid = payment.IsPaid,
+                    UserId = payment.PaymentUserID!,
+                    BillID = bill.BillID
+
+                }).ToList()
+            };
+
+            return billModel;
         }
 
-        public void Delete(BillModel Entity)
+        /// <summary>
+        /// Deletes a bill from the database.
+        /// </summary>
+        /// <param name="Entity">The bill to delete.</param>
+        /// <returns>The number of rows affected by the delete operation.</returns>
+        public int Delete(BillModel Entity)
         {
-            int rowsAffected = _context.Database.ExecuteSqlInterpolated($"EXECUTE pr_DeleteBill @BILLID = {Entity.Id};");
-            if (rowsAffected == 0)
-                throw new NotFoundException($"Entity {Entity.Id} : {Entity.Title} Not Found.");
+            // Execute the stored procedure to delete the bill and return the number of affected rows
+            int rowsAffected = _context.Database
+                .ExecuteSqlInterpolated($"EXECUTE pr_DeleteBill @BILLID = {Entity.Id};");
+
+            return rowsAffected;
         }
 
-        public async Task DeleteAsync(BillModel Entity)
+        /// <summary>
+        /// Deletes a bill from the database asynchronously.
+        /// </summary>
+        /// <param name="Entity">The bill to delete.</param>
+        /// <returns>A Task representing the asynchronous operation, containing the number of rows affected by the delete operation.</returns>
+        public async Task<int> DeleteAsync(BillModel Entity)
         {
-            int rowsAffected = await _context.Database.
-                ExecuteSqlInterpolatedAsync($"EXECUTE pr_DeleteBill @BILLID = {Entity.Id};");
+            // Execute the stored procedure to delete the bill asynchronously and return the number of affected rows
+            int rowsAffected = await _context.Database
+                .ExecuteSqlInterpolatedAsync($"EXECUTE pr_DeleteBill @BILLID = {Entity.Id};");
 
-            if (rowsAffected == 0)
-                throw new NotFoundException($"Entity {Entity.Id} : {Entity.Title} Not Found.");
+            return rowsAffected;
         }
 
-        public BillModel GetByID(int id)
+        /// <summary>
+        /// Retrieves a bill by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the bill to retrieve.</param>
+        /// <returns>The BillModel if found, otherwise null.</returns>
+        public BillModel? GetByID(int id)
         {
-            var result = _context.Bills.FromSqlInterpolated($"EXECUTE pr_GetBillByID @BILLID={id};").FirstOrDefault();
-
-            return result ?? throw new NotFoundException($"Bill With ID {id} Not Found.");
-        }
-
-        public async Task<BillModel> GetByIDAsync(int id)
-        {
-            var result = await _context.Bills.FromSqlInterpolated($"EXECUTE pr_GetBillByID @BILLID={id};").FirstOrDefaultAsync();
-
-            return result ?? throw new NotFoundException($"Bill With ID {id} Not Found.");
-        }
-
-        public IEnumerable<BillModel> GetPayersBills(int PayerID)
-        {
-            var result = _context.Bills.FromSqlInterpolated($"EXECUTE pr_pr_GetPayersBills @PAYERID = {PayerID};").ToList();
+            // Execute the stored procedure to retrieve the bill by its ID
+            BillModel? result = _context.Bills
+                .FromSqlInterpolated($"EXECUTE pr_GetBillByID @BILLID={id};").FirstOrDefault();
 
             return result;
         }
 
-        public async Task<IEnumerable<BillModel>> GetPayersBillsAsync(int PayerID)
+        /// <summary>
+        /// Retrieves a bill by its ID asynchronously.
+        /// </summary>
+        /// <param name="id">The ID of the bill to retrieve.</param>
+        /// <returns>A Task representing the asynchronous operation, containing the BillModel if found, otherwise null.</returns>
+        public async Task<BillModel?> GetByIDAsync(int id)
         {
-            var result = await _context.Bills.FromSqlInterpolated($"EXECUTE pr_pr_GetPayersBills @PAYERID = {PayerID};").ToListAsync();
+            // Execute the stored procedure to retrieve the bill by its ID asynchronously
+            BillModel? result = await _context.Bills
+                .FromSqlInterpolated($"EXECUTE pr_GetBillByID @BILLID={id};").FirstOrDefaultAsync();
 
             return result;
         }
 
-        public BillModel GetWithRelations(int billID, params Expression<Func<BillModel, object>>[] includeExpressions)
+        /// <summary>
+        /// Retrieves all bills for a given payer ID.
+        /// </summary>
+        /// <param name="PayerID">The ID of the payer to retrieve bills for.</param>
+        /// <returns>An IEnumerable of BillModel objects representing the payer's bills.</returns>
+        public IEnumerable<BillModel>? GetPayersBills(int PayerID)
+        {
+            // Execute the stored procedure to retrieve bills for the given payer
+            List<BillModel> result = _context.Bills
+                .FromSqlInterpolated($"EXECUTE pr_GetPayersBills @PAYERID = {PayerID};").ToList();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Retrieves all bills for a given payer ID asynchronously.
+        /// </summary>
+        /// <param name="PayerID">The ID of the payer to retrieve bills for.</param>
+        /// <returns>A Task representing the asynchronous operation, containing an IEnumerable of BillModel objects representing the payer's bills.</returns>
+        public async Task<IEnumerable<BillModel>?> GetPayersBillsAsync(int PayerID)
+        {
+            // Execute the stored procedure to retrieve bills for the given payer asynchronously
+            List<BillModel> result = await _context.Bills
+                .FromSqlInterpolated($"EXECUTE pr_GetPayersBills @PAYERID = {PayerID};").ToListAsync();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Retrieves a bill with related entities based on the provided include expressions.
+        /// </summary>
+        /// <param name="billID">The ID of the bill to retrieve.</param>
+        /// <param name="includeExpressions">An array of expressions specifying related entities to include.</param>
+        /// <returns>The BillModel with related entities, or null if not found.</returns>
+        public BillModel? GetWithRelations(int billID, params Expression<Func<BillModel, object>>[] includeExpressions)
         {
             IQueryable<BillModel> query = _context.Set<BillModel>();
 
@@ -94,11 +200,16 @@ namespace PexitaMVC.Infrastructure.Repositories
                 query = query.Include(expression);
             }
 
-            return query.Where(x => x.Id == billID).FirstOrDefault() ?? throw new NotFoundException($"Bill with ID {billID} not found."); ;
-
+            return query.Where(x => x.Id == billID).FirstOrDefault();
         }
 
-        public async Task<BillModel> GetWithRelationsAsync(int billID, params Expression<Func<BillModel, object>>[] includeExpressions)
+        /// <summary>
+        /// Retrieves a bill with related entities asynchronously based on the provided include expressions.
+        /// </summary>
+        /// <param name="billID">The ID of the bill to retrieve.</param>
+        /// <param name="includeExpressions">An array of expressions specifying related entities to include.</param>
+        /// <returns>A Task representing the asynchronous operation, containing the BillModel with related entities, or null if not found.</returns>
+        public async Task<BillModel?> GetWithRelationsAsync(int billID, params Expression<Func<BillModel, object>>[] includeExpressions)
         {
             IQueryable<BillModel> query = _context.Set<BillModel>();
 
@@ -108,23 +219,35 @@ namespace PexitaMVC.Infrastructure.Repositories
                 query = query.Include(expression);
             }
 
-            return await query.Where(x => x.Id == billID).FirstOrDefaultAsync() ?? throw new NotFoundException($"Bill with ID {billID} not found."); ;
-
+            return await query.Where(x => x.Id == billID).FirstOrDefaultAsync();
         }
 
-        public void Update(BillModel entity)
+        /// <summary>
+        /// Updates an existing bill in the database.
+        /// </summary>
+        /// <param name="entity">The bill to update.</param>
+        /// <returns>The number of rows affected by the update operation.</returns>
+        public int Update(BillModel entity)
         {
-            int rows = _context.Database.ExecuteSqlInterpolated($"EXECUTE pr_UpdateBill @BILLID = {entity.Id}, @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount};");
-            if (rows == 0)
-                throw new NotFoundException($"Bill {entity.Id} : {entity.Title} Not Found");
+            // Execute the stored procedure to update the bill and return the number of affected rows
+            int rowsAffected = _context.Database
+                .ExecuteSqlInterpolated($"EXECUTE pr_UpdateBill @BILLID = {entity.Id}, @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount};");
+
+            return rowsAffected;
         }
 
-        public async Task UpdateAsync(BillModel entity)
+        /// <summary>
+        /// Updates an existing bill in the database asynchronously.
+        /// </summary>
+        /// <param name="entity">The bill to update.</param>
+        /// <returns>A Task representing the asynchronous operation, containing the number of rows affected by the update operation.</returns>
+        public async Task<int> UpdateAsync(BillModel entity)
         {
-            int rows = await _context.Database.ExecuteSqlInterpolatedAsync($"EXECUTE pr_UpdateBill @BILLID = {entity.Id}, @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount};");
+            // Execute the stored procedure to update the bill asynchronously and return the number of affected rows
+            int rowsAffected = await _context.Database
+                .ExecuteSqlInterpolatedAsync($"EXECUTE pr_UpdateBill @BILLID = {entity.Id}, @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount};");
 
-            if (rows == 0)
-                throw new NotFoundException($"Bill {entity.Id} : {entity.Title} Not Found");
+            return rowsAffected;
         }
     }
 }

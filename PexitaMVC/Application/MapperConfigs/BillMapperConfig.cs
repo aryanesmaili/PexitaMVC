@@ -10,8 +10,8 @@ namespace PexitaMVC.Application.MapperConfigs
         {
             CreateMap<BillCreateDTO, BillModel>()
                 .ForMember(x => x.IsCompleted, opt => opt.Ignore())
-                .ForMember(x => x.UserID, opt => opt.MapFrom(x => x.OwnerID.ToString()));
-                ;
+                .ForMember(x => x.OwnerID, opt => opt.MapFrom(x => x.OwnerID.ToString()));
+            ;
 
             CreateMap<BillModel, BillDTO>()
                 .ForMember(x => x.Owner, opt => opt.MapFrom<BillUserResolver>())
@@ -27,7 +27,7 @@ namespace PexitaMVC.Application.MapperConfigs
 
         public SubUserDTO Resolve(BillModel source, BillDTO destination, SubUserDTO destMember, ResolutionContext context)
         {
-            return _mapper.Map<SubUserDTO>(source.User);
+            return _mapper.Map<SubUserDTO>(source.Owner);
         }
     }
 
