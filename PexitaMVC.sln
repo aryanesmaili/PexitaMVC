@@ -5,7 +5,7 @@ VisualStudioVersion = 17.12.35514.174
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PexitaMVC", "PexitaMVC\PexitaMVC.csproj", "{6DF8A807-000D-4725-A7A8-74142BF41334}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PexitaMVC.Tests", "Pexita.Tests\PexitaMVC.Tests.csproj", "{14EAE6E3-327D-4FBB-8C2C-69857AAD938C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PexitaMVC.Tests", "PexitaMVC.Tests\PexitaMVC.Tests.csproj", "{5E7DBD26-6E3B-4B75-AD51-0868E63C9602}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{6DF8A807-000D-4725-A7A8-74142BF41334}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6DF8A807-000D-4725-A7A8-74142BF41334}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6DF8A807-000D-4725-A7A8-74142BF41334}.Release|Any CPU.Build.0 = Release|Any CPU
-		{14EAE6E3-327D-4FBB-8C2C-69857AAD938C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{14EAE6E3-327D-4FBB-8C2C-69857AAD938C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{14EAE6E3-327D-4FBB-8C2C-69857AAD938C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{14EAE6E3-327D-4FBB-8C2C-69857AAD938C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E7DBD26-6E3B-4B75-AD51-0868E63C9602}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E7DBD26-6E3B-4B75-AD51-0868E63C9602}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E7DBD26-6E3B-4B75-AD51-0868E63C9602}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E7DBD26-6E3B-4B75-AD51-0868E63C9602}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
