@@ -19,5 +19,8 @@
     {
         public int ID { get; set; }
         public int BillID { get; set; }
+        public string UserID { get; set; } = string.Empty;
     }
+
+    public class PaymentUpdate : BasePaymentDTO { }
 }
