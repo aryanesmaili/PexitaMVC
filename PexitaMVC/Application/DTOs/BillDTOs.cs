@@ -15,8 +15,8 @@
     public class BillDTO : BaseBillDTO
     {
         public int ID { get; set; }
-        public bool IsCompleted { get; set; }
-        public required SubUserDTO User { get; set; }
+        public bool IsCompleted { get => Payments.All(x => x.IsPaid);}
+        public required SubUserDTO Owner { get; set; }
         public required List<SubPaymentDTO> Payments { get; set; }
     }
 

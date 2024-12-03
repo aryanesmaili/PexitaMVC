@@ -6,7 +6,7 @@
         public bool IsPaid { get; set; }
     }
 
-    public class PaymentDTO : BaseBillDTO
+    public class PaymentDTO : BasePaymentDTO
     {
         public int ID { get; set; }
         public int UserID { get; set; }
@@ -15,7 +15,7 @@
         public required SubBillDTO Bill { get; set; }
     }
 
-    public class SubPaymentDTO : BaseBillDTO
+    public class SubPaymentDTO : BasePaymentDTO
     {
         public int ID { get; set; }
         public int BillID { get; set; }

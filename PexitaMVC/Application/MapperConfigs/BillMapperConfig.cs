@@ -10,10 +10,11 @@ namespace PexitaMVC.Application.MapperConfigs
         {
             CreateMap<BillCreateDTO, BillModel>()
                 .ForMember(x => x.IsCompleted, opt => opt.Ignore())
+                .ForMember(x => x.UserID, opt => opt.MapFrom(x => x.OwnerID.ToString()));
                 ;
 
             CreateMap<BillModel, BillDTO>()
-                .ForMember(x => x.User, opt => opt.MapFrom<BillUserResolver>())
+                .ForMember(x => x.Owner, opt => opt.MapFrom<BillUserResolver>())
                 .ForMember(x => x.Payments, opt => opt.MapFrom<BillPaymentResolver>());
 
             CreateMap<BillModel, SubBillDTO>();
