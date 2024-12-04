@@ -8,7 +8,7 @@
 
     public class BillCreateDTO : BaseBillDTO
     {
-        public int OwnerID { get; set; }
+        public required string OwnerID { get; set; }
         public required Dictionary<string, double> Usernames { get; set; }
     }
 

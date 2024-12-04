@@ -1,7 +1,7 @@
 ﻿namespace PexitaMVC.Application.Exceptions
 {
     [Serializable]
-    internal class NotFoundException : Exception
+    public class NotFoundException : Exception
     {
         public NotFoundException()
         {
