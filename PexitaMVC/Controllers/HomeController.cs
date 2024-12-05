@@ -1,20 +1,80 @@
 using Microsoft.AspNetCore.Mvc;
+using PexitaMVC.Application.DTOs;
+using PexitaMVC.Application.Exceptions;
+using PexitaMVC.Application.Interfaces;
 using PexitaMVC.Core.Entites;
 using System.Diagnostics;
 namespace PexitaMVC.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly IBillService _billService;
+        private readonly IUserService _userService;
+        private readonly IPaymentService _paymentService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IBillService billService, IUserService userService, IPaymentService paymentService)
         {
-            _logger = logger;
+            _billService = billService;
+            _userService = userService;
+            _paymentService = paymentService;
         }
 
         public IActionResult Index()
         {
             return View();
+        }
+
+        public async Task<IActionResult> BillList(string UserID)
+        {
+            List<BillDTO> result = (await _userService.GetAllBillsForUserAsync(UserID)).ToList();
+
+            return View(result);
+        }
+
+        public IActionResult Profile()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateBillAction(BillCreateDTO createDTO)
+        {
+            if (ModelState.IsValid)
+            {
+                var newBill = await _billService.AddBillAsync(createDTO);
+                return Ok(newBill);
+            }
+            return BadRequest();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteBillAction(int BillID)
+        {
+            try
+            {
+                await _billService.DeleteBillAsync(BillID);
+
+                return Ok();
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PayBillAction(int paymentID)
+        {
+            try
+            {
+                var result = await _paymentService.Pay(paymentID);
+                return Ok(result);
+            }
+
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
         }
 
         public IActionResult Privacy()

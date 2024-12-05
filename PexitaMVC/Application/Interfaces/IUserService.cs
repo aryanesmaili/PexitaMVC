@@ -31,5 +31,19 @@ namespace PexitaMVC.Application.Interfaces
         /// <param name="UserID">The ID of the user for whom to fetch unpaid bills.</param>
         /// <returns>A Task that represents the asynchronous operation, containing an IEnumerable of BillDTO objects representing the unpaid bills for the user.</returns>
         Task<IEnumerable<BillDTO>> GetUnpaidBillsForUserAsync(string UserID);
+
+        /// <summary>
+        /// Retrieves all bills for a user synchronously.
+        /// </summary>
+        /// <param name="UserID">The ID of the user for whom to fetch bills.</param>
+        /// <returns>An IEnumerable of BillDTO objects representing the bills for the user.</returns>
+        IEnumerable<BillDTO> GetAllBillsForUser(string UserID);
+
+        /// <summary>
+        /// Retrieves all bills for a user asynchronously.
+        /// </summary>
+        /// <param name="UserID">The ID of the user for whom to fetch bills.</param>
+        /// <returns>A Task that represents the asynchronous operation, containing an IEnumerable of BillDTO objects representing the bills for the user.</returns>
+        Task<IEnumerable<BillDTO>> GetAllBillsForUserAsync(string UserID);
     }
 }

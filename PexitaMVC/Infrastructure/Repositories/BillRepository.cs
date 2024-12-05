@@ -161,7 +161,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         /// </summary>
         /// <param name="PayerID">The ID of the payer to retrieve bills for.</param>
         /// <returns>An IEnumerable of BillModel objects representing the payer's bills.</returns>
-        public IEnumerable<BillModel>? GetPayersBills(int PayerID)
+        public IEnumerable<BillModel>? GetPayersBills(string PayerID)
         {
             // Execute the stored procedure to retrieve bills for the given payer
             List<BillModel> result = _context.Bills
@@ -175,7 +175,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         /// </summary>
         /// <param name="PayerID">The ID of the payer to retrieve bills for.</param>
         /// <returns>A Task representing the asynchronous operation, containing an IEnumerable of BillModel objects representing the payer's bills.</returns>
-        public async Task<IEnumerable<BillModel>?> GetPayersBillsAsync(int PayerID)
+        public async Task<IEnumerable<BillModel>?> GetPayersBillsAsync(string PayerID)
         {
             // Execute the stored procedure to retrieve bills for the given payer asynchronously
             List<BillModel> result = await _context.Bills

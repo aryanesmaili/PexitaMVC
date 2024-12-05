@@ -15,12 +15,13 @@
         public required SubBillDTO Bill { get; set; }
     }
 
-    public class SubPaymentDTO : BasePaymentDTO
-    {
-        public int ID { get; set; }
-        public int BillID { get; set; }
-        public string UserID { get; set; } = string.Empty;
-    }
+        public class SubPaymentDTO : BasePaymentDTO
+        {
+            public int ID { get; set; }
+            public int BillID { get; set; }
+            public string UserID { get; set; } = string.Empty;
+            public required SubUserDTO Payer { get; set; }
+        }
 
     public class PaymentUpdate : BasePaymentDTO { }
 }

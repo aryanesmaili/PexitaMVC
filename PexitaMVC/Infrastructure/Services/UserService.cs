@@ -10,12 +10,37 @@ namespace PexitaMVC.Infrastructure.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IBillRepository _billRepository;
         private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepository, IMapper mapper)
+        public UserService(IUserRepository userRepository, IMapper mapper, IBillRepository billRepository)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _billRepository = billRepository;
+        }
+
+
+        /// <summary>
+        /// Retrieves all bills for a user synchronously.
+        /// </summary>
+        /// <param name="UserID">The ID of the user for whom to fetch bills.</param>
+        /// <returns>An IEnumerable of BillDTO objects representing the bills for the user.</returns>
+        public IEnumerable<BillDTO> GetAllBillsForUser(string UserID)
+        {
+            IEnumerable<BillModel> bills = _billRepository.GetPayersBills(UserID) ?? [];
+            return bills.Select(_mapper.Map<BillDTO>);
+        }
+
+        /// <summary>
+        /// Retrieves all bills for a user asynchronously.
+        /// </summary>
+        /// <param name="UserID">The ID of the user for whom to fetch bills.</param>
+        /// <returns>A Task that represents the asynchronous operation, containing an IEnumerable of BillDTO objects representing the bills for the user.</returns>
+        public async Task<IEnumerable<BillDTO>> GetAllBillsForUserAsync(string UserID)
+        {
+            IEnumerable<BillModel> bills = await _billRepository.GetPayersBillsAsync(UserID) ?? [];
+            return bills.Select(_mapper.Map<BillDTO>);
         }
 
         /// <summary>
@@ -29,7 +54,7 @@ namespace PexitaMVC.Infrastructure.Services
             List<BillModel> bills = (_userRepository.GetUnpaidBillsForUser(UserID) ?? []).ToList();
 
             // If there are any unpaid bills, map them to BillDTO, otherwise return an empty collection
-            return bills.Count > 0 ? bills.Select(_mapper.Map<BillDTO>).ToList() : [];
+            return bills.Count > 0 ? bills.Select(_mapper.Map<BillDTO>) : [];
         }
 
         /// <summary>
@@ -43,7 +68,7 @@ namespace PexitaMVC.Infrastructure.Services
             List<BillModel> bills = (await _userRepository.GetUnpaidBillsForUserAsync(UserID) ?? []).ToList();
 
             // If there are any unpaid bills, map them to BillDTO, otherwise return an empty collection
-            return bills.Count > 0 ? bills.Select(_mapper.Map<BillDTO>).ToList() : [];
+            return bills.Count > 0 ? bills.Select(_mapper.Map<BillDTO>) : [];
         }
 
         /// <summary>
