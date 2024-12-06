@@ -18,7 +18,8 @@ namespace PexitaMVC.Tests
         private readonly BillDTO billDTO;
         private readonly UserModel owner = new() { Id = "1", UserName = "Owner", Name = "Eli" };
         private readonly UserModel payer = new() { Id = "2", UserName = "John", Name = "John" };
-
+        private readonly SubUserDTO ownerDTO;
+        private readonly SubUserDTO payerDTO;
         public BillServiceTests()
         {
             _billRepositoryMock = new Mock<IBillRepository>();
@@ -29,7 +30,8 @@ namespace PexitaMVC.Tests
                 _mapperMock.Object,
                 _userRepositoryMock.Object
             );
-
+            ownerDTO = new() { ID = owner.Id, Username = owner.UserName, Name = owner.Name };
+            payerDTO = new() { ID = payer.Id, Username = payer.UserName, Name = payer.Name };
             paymentModels = [new() { Id = 1, UserId = "1", Amount = 20, IsPaid = true }, new() { Id = 2, Amount = 5, UserId = "2", IsPaid = false }];
             bill = new() { Id = 1, Title = "Dinner", Owner = owner, OwnerID = owner.Id, TotalAmount = 25, BillPayments = paymentModels };
             billDTO = new BillDTO()
@@ -39,8 +41,8 @@ namespace PexitaMVC.Tests
                 Owner = new SubUserDTO() { ID = owner.Id, Name = owner.Name, Username = owner.UserName },
                 Payments =
                     [
-                        new() { Amount = paymentModels[0].Amount, IsPaid = true, BillID = bill.Id, UserID = paymentModels[0].UserId },
-                        new() {ID = paymentModels[1].Id, Amount = paymentModels[1].Amount, IsPaid = paymentModels[1].IsPaid, UserID = paymentModels[1].UserId }
+                        new() { Amount = paymentModels[0].Amount, IsPaid = true, BillID = bill.Id, UserID = paymentModels[0].UserId, Payer = ownerDTO },
+                        new() {ID = paymentModels[1].Id, Amount = paymentModels[1].Amount, IsPaid = paymentModels[1].IsPaid, UserID = paymentModels[1].UserId, Payer = payerDTO }
                     ],
             };
 

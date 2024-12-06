@@ -1,0 +1,156 @@
+﻿@{
+    ViewData["Title"] = "Create Bill";
+}
+
+@model PexitaMVC.Application.DTOs.BillCreateDTO
+
+<div class="container">
+    <form id="bill-form">
+        <label class="form-label" for="Title">Title</label>
+        <input class="form-control mb-3" type="text" name="Title" asp-for="Title" />
+        <label class="form-label" for="TotalAmount">TotalAmount</label>
+        <input class="form-control mb-3" type="number" name="TotalAmount" asp-for="TotalAmount" step="1" />
+        <input hidden class="form-control" type="text" name="Id" value="@ViewBag.UserId" asp-for="OwnerID" />
+        <div id="payers_div" class="mb-3">
+            <div id="payer-div" class="mb-2">
+                <label class="form-label" for="payer_username">Payer Username</label>
+                <input class="form-control" type="text" name="payer_username" placeholder="John Doe" />
+                <label class="form-label" for="pay_value"></label>
+                <input class="form-control" type="number" name="pay_value" placeholder="12.99" />
+            </div>
+        </div>
+        <div class="mb-2">
+            <button class="btn btn-primary" type="button" id="add-payer">Add Payer</button>
+        </div>
+        <input class="btn btn-primary mt-5" type="submit" value="Add Bill" />
+    </form>
+    <div hidden id="bills_table">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Title</th>
+                    <th>Total Amount</th>
+                    <th>Is Completed</th>
+                    <th>Payments</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        let $billsTable = $('#bills_table');
+
+        // AJAX form submission
+        $('#bill-form').on('submit', function (e) {
+            e.preventDefault(); // Prevent default form submission
+
+            // Initialize an empty dictionary for payers
+            const payers = {};
+
+            // Iterate over each 'payer-div' to collect data
+            $('#payers_div .payer-div').each(function () {
+                const username = $(this).find('input[name="payer_username"]').val().trim();
+                const amount = parseFloat($(this).find('input[name="pay_value"]').val().trim());
+
+                if (username && !isNaN(amount)) {
+                    payers[username] = amount; // Add to the dictionary
+                }
+            });
+
+            // Serialize the form data
+            const formData = $(this).serializeArray(); // Array format
+            const dataToSend = {};
+
+            // Convert serialized array to object
+            formData.forEach(item => {
+                dataToSend[item.name] = item.value;
+            });
+
+            // Attach the payers dictionary to the data
+            dataToSend.Usernames = payers;
+
+            // Debugging: Log the data to be sent
+            console.log(dataToSend);
+
+            $.ajax({
+                url: '/Home/CreateBillAction', // Replace with your form action URL
+                type: 'POST',
+                contentType: 'application/json', // Send data as JSON
+                data: JSON.stringify(dataToSend),
+                success: function (newBill) {
+                    // Handle success response
+                    console.log('Bill created successfully:', newBill);
+                },
+                error: function () {
+                    alert('Error submitting the form. Please try again.');
+                }
+            });
+        });
+
+        // Function to add a new bill to the table
+        function addBillToTable(bill) {
+            const rowHtml = `
+                <tr data-bill-id="${bill.id}">
+                    <td>${bill.id}</td>
+                    <td>${bill.title}</td>
+                    <td>${bill.totalAmount}</td>
+                    <td>${bill.isCompleted}</td>
+                    <td class="px-2">
+                        ${bill.payments.map(payment => `
+                            <span class="mb-1">${payment.payer.name}: ${payment.amount}, ${(payment.isPaid ? "Paid" : "Not Paid")}</span>
+                        `).join('')}
+                    </td>
+                    <td>
+                        <button class="btn btn-danger delete-bill" data-id="${bill.id}">Delete</button>
+                    </td>
+                </tr>
+            `;
+            $billsTable.find('tbody').append(rowHtml);
+        }
+
+        // Add payer functionality
+        $('#add-payer').on('click', function () {
+            const $newPayerDiv = $(`
+                <div class="payer-div my-3">
+                <label class="form-label" for="payer_username">Payer Username</label>
+                <input class="form-control" type="text" name="payer_username" placeholder="John Doe" />
+                <label class="form-label" for="pay_value"></label>
+                <input class="form-control" type="number" name="pay_value" placeholder="12.99" />
+                <button class="btn btn-danger delete-payer mt-2">Delete Payer</button>
+                </div>
+            `);
+            $('#payers_div').append($newPayerDiv);
+        });
+
+        // Delete bill functionality
+        $(document).on('click', '.delete-bill', function () {
+            const billId = $(this).data('id'); // Get the ID of the bill to delete
+
+            $.ajax({
+                url: `https://localhost:7247/Home/DeleteBillAction/${billId}`, // Replace with your delete endpoint
+                type: 'DELETE',
+                success: function () {
+                    // Remove the row from the table
+                    $(`tr[data-bill-id="${billId}"]`).remove();
+                    alert('Bill deleted successfully.');
+                },
+                error: function () {
+                    alert('Error deleting the bill. Please try again.');
+                }
+            });
+        });
+
+        // Delete payer functionality
+        $(document).on('click', '.delete-payer', function () {
+            $(this).closest('.payer-div').remove();
+        });
+    });
+</script>
+

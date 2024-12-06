@@ -1,0 +1,50 @@
+﻿@{
+
+}
+
+@model List<PexitaMVC.Application.DTOs.BillDTO>
+
+<div class="container">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Total Amount</th>
+                <th>Is Completed</th>
+                <th>Payments</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @item.ID
+                        </td>
+                        <td>
+                            @item.Title
+                        </td>
+                        <td>
+                            @item.TotalAmount
+                        </td>
+                        <td>
+                            @item.IsCompleted
+                        </td>
+                        <td>
+                            @{
+                                foreach (var payment in item.Payments)
+                                {
+                                    <span class="mb-1">
+                                        @($"{payment.Payer.Email}: {payment.Amount}, {(payment.IsPaid ? "Paid" : "Not Paid")}")
+                                    </span>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

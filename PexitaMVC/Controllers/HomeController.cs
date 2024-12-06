@@ -4,6 +4,7 @@ using PexitaMVC.Application.Exceptions;
 using PexitaMVC.Application.Interfaces;
 using PexitaMVC.Core.Entites;
 using System.Diagnostics;
+using System.Security.Claims;
 namespace PexitaMVC.Controllers
 {
     public class HomeController : Controller
@@ -33,6 +34,14 @@ namespace PexitaMVC.Controllers
 
         public IActionResult Profile()
         {
+            return View();
+        }
+
+        public IActionResult CreateBill()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            ViewBag.UserId = userId;
+
             return View();
         }
 
