@@ -15,11 +15,11 @@ namespace PexitaMVC.Infrastructure.Repositories
         /// </summary>
         /// <param name="id">The ID of the user to retrieve.</param>
         /// <returns>The UserModel if found, otherwise null.</returns>
-        public UserModel? GetByID(int id)
+        public UserModel? GetByID(string id)
         {
             // Execute the stored procedure to retrieve the user by their ID
             UserModel? user = _context.Users
-                .FromSqlInterpolated($"EXEC pr_GetUserByID @VarID = {id};")
+                .FromSqlInterpolated($"SELECT * FROM dbo.AspNetUsers WHERE Id = {id}")
                 .FirstOrDefault();
 
             return user;
@@ -30,10 +30,10 @@ namespace PexitaMVC.Infrastructure.Repositories
         /// </summary>
         /// <param name="id">The ID of the user to retrieve.</param>
         /// <returns>A Task representing the asynchronous operation, containing the UserModel if found, otherwise null.</returns>
-        public async Task<UserModel?> GetByIDAsync(int id)
+        public async Task<UserModel?> GetByIDAsync(string id)
         {
             UserModel? user = await _context.Users
-                .FromSqlInterpolated($"EXEC pr_GetUserByID @VarID = {id};")
+                .FromSqlInterpolated($"SELECT * FROM dbo.AspNetUsers WHERE Id = {id}")
                 .FirstOrDefaultAsync();
 
             return user;
@@ -47,7 +47,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         public UserModel? GetByUsername(string Username)
         {
             UserModel? user = _context.Users
-                .FromSqlInterpolated($"EXEC pr_GetUserByUsername @VarUsername = {Username};")
+                .FromSqlInterpolated($"SELECT * FROM dbo.AspNetUsers WHERE UserName = {Username}")
                 .FirstOrDefault();
 
             return user;
@@ -61,7 +61,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         public async Task<UserModel?> GetByUsernameAsync(string Username)
         {
             UserModel? user = await _context.Users
-                .FromSqlInterpolated($"EXEC pr_GetUserByUsername @VarUsername = {Username};")
+                .FromSqlInterpolated($"SELECT * FROM dbo.AspNetUsers WHERE UserName = {Username}")
                 .FirstOrDefaultAsync();
 
             return user;
@@ -150,10 +150,12 @@ namespace PexitaMVC.Infrastructure.Repositories
         /// <returns>A list of UserModel representing the users with the given usernames.</returns>
         public List<UserModel>? GetUsersByUsernames(ICollection<string> usernames)
         {
-            string input = string.Join(",", usernames.Select(username => $"'{username}'"));
+            // Convert the collection of usernames to a comma-separated string
+            string usernamesStr = string.Join(",", usernames.Select(u => $"{u}"));
 
+            // Use the string_split function to break the comma-separated string into individual values
             List<UserModel> users = _context.Users
-                .FromSqlInterpolated($"EXEC pr_GetUsersByUsername @Usernames = {input};")
+                .FromSqlInterpolated($"SELECT * FROM dbo.AspNetUsers WHERE UserName IN (SELECT value FROM string_split({usernamesStr}, ','))")
                 .ToList();
 
             return users;
@@ -166,14 +168,17 @@ namespace PexitaMVC.Infrastructure.Repositories
         /// <returns>A Task representing the asynchronous operation, containing a list of UserModel for the given usernames.</returns>
         public async Task<List<UserModel>?> GetUsersByUsernamesAsync(ICollection<string> usernames)
         {
-            string input = string.Join(",", usernames.Select(username => $"'{username}'"));
+            // Convert the collection of usernames to a comma-separated string
+            string usernamesStr = string.Join(",", usernames.Select(u => $"{u}"));
 
+            // Use the string_split function to break the comma-separated string into individual values
             List<UserModel> users = await _context.Users
-                .FromSqlInterpolated($"EXEC pr_GetUsersByUsername @Usernames = {input};")
+                .FromSqlInterpolated($"SELECT * FROM dbo.AspNetUsers WHERE UserName IN (SELECT value FROM string_split({usernamesStr}, ','))")
                 .ToListAsync();
 
             return users;
         }
+
 
         /// <summary>
         /// Retrieves a user with related entities based on the provided include expressions.

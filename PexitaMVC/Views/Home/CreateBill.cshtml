@@ -7,16 +7,16 @@
 <div class="container">
     <form id="bill-form">
         <label class="form-label" for="Title">Title</label>
-        <input class="form-control mb-3" type="text" name="Title" asp-for="Title" />
+        <input class="form-control mb-3" type="text" name="Title" asp-for="Title" value="Dinner" />
         <label class="form-label" for="TotalAmount">TotalAmount</label>
-        <input class="form-control mb-3" type="number" name="TotalAmount" asp-for="TotalAmount" step="1" />
+        <input class="form-control mb-3" type="number" name="TotalAmount" asp-for="TotalAmount" step="1"  value="123"/>
         <input hidden class="form-control" type="text" name="Id" value="@ViewBag.UserId" asp-for="OwnerID" />
         <div id="payers_div" class="mb-3">
-            <div id="payer-div" class="mb-2">
-                <label class="form-label" for="payer_username">Payer Username</label>
-                <input class="form-control" type="text" name="payer_username" placeholder="John Doe" />
+            <div class="mb-2 payer-div">
+                <label class="form-label" for="payer_email">Payer Email</label>
+                <input class="form-control" type="text" name="payer_email" placeholder="John Doe" value="aryanesmailiea@gmail.com" />
                 <label class="form-label" for="pay_value"></label>
-                <input class="form-control" type="number" name="pay_value" placeholder="12.99" />
+                <input class="form-control" type="number" name="pay_value" placeholder="12.99"  value="123"/>
             </div>
         </div>
         <div class="mb-2">
@@ -49,43 +49,33 @@
 
         // AJAX form submission
         $('#bill-form').on('submit', function (e) {
-            e.preventDefault(); // Prevent default form submission
+            e.preventDefault();
 
-            // Initialize an empty dictionary for payers
             const payers = {};
-
-            // Iterate over each 'payer-div' to collect data
             $('#payers_div .payer-div').each(function () {
-                const username = $(this).find('input[name="payer_username"]').val().trim();
+                const email = $(this).find('input[name="payer_email"]').val().trim();
                 const amount = parseFloat($(this).find('input[name="pay_value"]').val().trim());
 
-                if (username && !isNaN(amount)) {
-                    payers[username] = amount; // Add to the dictionary
+                if (email && !isNaN(amount)) {
+                    payers[email] = amount;
                 }
             });
 
-            // Serialize the form data
-            const formData = $(this).serializeArray(); // Array format
-            const dataToSend = {};
+            const dataToSend = {
+                Title: $('input[name="Title"]').val(),
+                TotalAmount: $('input[name="TotalAmount"]').val(),
+                OwnerID: $('input[name="Id"]').val(),
+                Usernames: payers
+            };
 
-            // Convert serialized array to object
-            formData.forEach(item => {
-                dataToSend[item.name] = item.value;
-            });
-
-            // Attach the payers dictionary to the data
-            dataToSend.Usernames = payers;
-
-            // Debugging: Log the data to be sent
             console.log(dataToSend);
 
             $.ajax({
-                url: '/Home/CreateBillAction', // Replace with your form action URL
+                url: '/Home/CreateBillAction',
                 type: 'POST',
-                contentType: 'application/json', // Send data as JSON
+                contentType: 'application/json',
                 data: JSON.stringify(dataToSend),
                 success: function (newBill) {
-                    // Handle success response
                     console.log('Bill created successfully:', newBill);
                 },
                 error: function () {
@@ -119,8 +109,8 @@
         $('#add-payer').on('click', function () {
             const $newPayerDiv = $(`
                 <div class="payer-div my-3">
-                <label class="form-label" for="payer_username">Payer Username</label>
-                <input class="form-control" type="text" name="payer_username" placeholder="John Doe" />
+                <label class="form-label" for="payer_email">Payer Email</label>
+                <input class="form-control" type="text" name="payer_email" placeholder="John Doe" />
                 <label class="form-label" for="pay_value"></label>
                 <input class="form-control" type="number" name="pay_value" placeholder="12.99" />
                 <button class="btn btn-danger delete-payer mt-2">Delete Payer</button>

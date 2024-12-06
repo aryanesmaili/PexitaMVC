@@ -8,6 +8,12 @@ namespace PexitaMVC.Core.Repositories
         Task<T?> GetByIDAsync(int id);
     }
 
+    public interface IUserGetRepository<T> where T : class
+    {
+        T? GetByID(string id);
+        Task<T?> GetByIDAsync(string id);
+    }
+
     public interface IGetWithRelationsRepository<T> where T : class
     {
         T? GetWithRelations(int id, params Expression<Func<T, object>>[] expressions);

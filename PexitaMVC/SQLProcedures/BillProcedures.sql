@@ -2,7 +2,7 @@
 CREATE PROCEDURE pr_InsertBill
     @Title NVARCHAR(255),
     @TotalAmount FLOAT,
-    @UserID NVARCHAR(450), -- Bill's Owner
+    @UserID NVARCHAR(MAX), -- Bill's Owner
     @PaymentsJson NVARCHAR(MAX) -- list of payments as json
 AS
 BEGIN
@@ -10,7 +10,7 @@ BEGIN
 BEGIN TRANSACTION;
 
         -- Insert into Bills table
-        INSERT INTO Bills (Title, TotalAmount, UserID)
+        INSERT INTO Bills (Title, TotalAmount, OwnerID)
         VALUES (@Title, @TotalAmount, @UserID);
 
         -- Get the newly generated Bill ID
@@ -45,19 +45,19 @@ BEGIN TRANSACTION;
             b.Id AS BillID,
             b.Title,
             b.TotalAmount,
-            b.UserID,
+            b.OwnerID,
             p.Id AS PaymentID,
             p.Amount,
             p.IsPaid,
             p.UserId AS PaymentUserID,
 			u.Id AS UserID,
-			u.Email,
-			u.Name,
-			u.UserName,
-			u.PhoneNumber
+			u.Email AS UserEmail,
+			u.Name AS UserName,
+			u.UserName AS UserUserName,
+			u.PhoneNumber AS UserPhoneNumber
         FROM Bills b
         INNER JOIN Payments p ON b.Id = p.BillID
-		INNER JOIN AspNetUsers u On u.Id = b.UserID
+		INNER JOIN AspNetUsers u On u.Id = b.OwnerID
         WHERE b.Id = @BillID;
 
     END TRY
@@ -67,28 +67,11 @@ BEGIN TRANSACTION;
     END CATCH
 END;
 go
-
 -- PROCEDURE TO DELETE A BILL AND IT'S PAYMENTS.
 CREATE PROCEDURE pr_DeleteBill @BILLID INT
 AS
     BEGIN
         DELETE FROM Bills WHERE Id = @BILLID;
-    END
-GO
-
--- THE PROCEDURE TO GET A BILL BY IT'S ID
-CREATE PROCEDURE pr_GetBillByID @BILLID INT
-AS
-    BEGIN
-        SELECT * FROM Bills WHERE Id = @BILLID;
-    END
-GO
-
--- THE PROCEDURE TO GET BILLS OF A CERTAIN PAYER
-CREATE PROCEDURE pr_GetPayersBills @PAYERID NVARCHAR(50)
-AS
-    BEGIN
-        SELECT * FROM Bills WHERE UserID = @PAYERID;
     END
 GO
 

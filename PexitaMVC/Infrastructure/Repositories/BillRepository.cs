@@ -4,6 +4,7 @@ using PexitaMVC.Core.Interfaces;
 using PexitaMVC.Infrastructure.Data;
 using System.Linq.Expressions;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace PexitaMVC.Infrastructure.Repositories
 {
@@ -19,11 +20,17 @@ namespace PexitaMVC.Infrastructure.Repositories
         public BillModel Add(BillModel entity)
         {
             // Serialize the bill payments to JSON for storage
-            string payments = JsonSerializer.Serialize(entity.BillPayments.ToList());
+            string payments = JsonSerializer.Serialize(
+            entity.BillPayments.Select(bp => new Dictionary<string, object>
+            {
+                ["Amount"] = bp.Amount,
+                ["IsPaid"] = bp.IsPaid,
+                ["UserId"] = bp.UserId
+            }));
 
             // Execute the stored procedure to insert the bill and return the result
-            List<BillPaymentUserDBResult> result = _context.Set<BillPaymentUserDBResult>()
-                .FromSqlInterpolated(
+            List<BillPaymentUserDBResult> result = _context.Database.
+                SqlQuery<BillPaymentUserDBResult>(
                 $"EXECUTE pr_InsertBill @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount}, @UserID = {entity.OwnerID}, @PaymentsJson = {payments};"
                 ).ToList();
 
@@ -62,12 +69,18 @@ namespace PexitaMVC.Infrastructure.Repositories
         /// <returns>A Task containing the added BillModel with its generated ID and other details.</returns>
         public async Task<BillModel> AddAsync(BillModel entity)
         {
-            // Serialize the bill payments to JSON for storage
-            string payments = JsonSerializer.Serialize(entity.BillPayments.ToList());
+                // Serialize the bill payments to JSON for storage
+                string payments = JsonSerializer.Serialize(
+                entity.BillPayments.Select(bp => new Dictionary<string, object>
+                {
+                    ["Amount"] = bp.Amount,
+                    ["IsPaid"] = bp.IsPaid,
+                    ["UserId"] = bp.UserId
+                }));
 
             // Execute the stored procedure to insert the bill asynchronously and return the result
-            List<BillPaymentUserDBResult> result = await _context.Set<BillPaymentUserDBResult>()
-                .FromSqlInterpolated(
+            List<BillPaymentUserDBResult> result = await _context.Database
+                .SqlQuery<BillPaymentUserDBResult>(
                 $"EXECUTE pr_InsertBill @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount}, @UserID = {entity.OwnerID}, @PaymentsJson = {payments};"
                 ).ToListAsync();
 
@@ -137,7 +150,8 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Execute the stored procedure to retrieve the bill by its ID
             BillModel? result = _context.Bills
-                .FromSqlInterpolated($"EXECUTE pr_GetBillByID @BILLID={id};").FirstOrDefault();
+                .FromSqlInterpolated($"SELECT * FROM Bills WHERE Id = {id}")
+                .FirstOrDefault();
 
             return result;
         }
@@ -151,7 +165,8 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Execute the stored procedure to retrieve the bill by its ID asynchronously
             BillModel? result = await _context.Bills
-                .FromSqlInterpolated($"EXECUTE pr_GetBillByID @BILLID={id};").FirstOrDefaultAsync();
+                .FromSqlInterpolated($"SELECT * FROM Bills WHERE Id = {id}")
+                .FirstOrDefaultAsync();
 
             return result;
         }
@@ -165,7 +180,8 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Execute the stored procedure to retrieve bills for the given payer
             List<BillModel> result = _context.Bills
-                .FromSqlInterpolated($"EXECUTE pr_GetPayersBills @PAYERID = {PayerID};").ToList();
+                .FromSqlInterpolated($"SELECT * FROM Bills WHERE OwnerID = {PayerID}")
+                .ToList();
 
             return result;
         }
@@ -179,7 +195,8 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Execute the stored procedure to retrieve bills for the given payer asynchronously
             List<BillModel> result = await _context.Bills
-                .FromSqlInterpolated($"EXECUTE pr_GetPayersBills @PAYERID = {PayerID};").ToListAsync();
+                .FromSqlInterpolated($"SELECT * FROM Bills WHERE OwnerID = {PayerID}")
+                .ToListAsync();
 
             return result;
         }

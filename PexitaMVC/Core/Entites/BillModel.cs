@@ -41,11 +41,11 @@
     {
         public int BillID { get; set; }
         public string? Title { get; set; }
-        public float TotalAmount { get; set; }
+        public double TotalAmount { get; set; }
         public string? UserID { get; set; }
 
         public int PaymentID { get; set; }
-        public float Amount { get; set; }
+        public double Amount { get; set; }
         public bool IsPaid { get; set; }
         public string? PaymentUserID { get; set; }
 

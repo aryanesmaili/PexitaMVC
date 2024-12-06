@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PexitaMVC.Application.DTOs;
 using PexitaMVC.Application.Exceptions;
@@ -32,11 +33,13 @@ namespace PexitaMVC.Controllers
             return View(result);
         }
 
+        [Authorize]
         public IActionResult Profile()
         {
             return View();
         }
 
+        [Authorize]
         public IActionResult CreateBill()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -45,17 +48,24 @@ namespace PexitaMVC.Controllers
             return View();
         }
 
+        [Authorize]
         [HttpPost]
-        public async Task<IActionResult> CreateBillAction(BillCreateDTO createDTO)
+        public async Task<IActionResult> CreateBillAction([FromBody] BillCreateDTO createDTO)
         {
-            if (ModelState.IsValid)
+            try
             {
                 var newBill = await _billService.AddBillAsync(createDTO);
                 return Ok(newBill);
             }
-            return BadRequest();
+
+            catch (Exception e)
+            {
+                DebugError error = new() { Message = e.Message, StackTrace = e.StackTrace ?? "", InnerException = e.InnerException?.ToString() ?? "" };
+                return StatusCode(500, error);
+            }
         }
 
+        [Authorize]
         [HttpDelete]
         public async Task<IActionResult> DeleteBillAction(int BillID)
         {
@@ -71,6 +81,7 @@ namespace PexitaMVC.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> PayBillAction(int paymentID)
         {
@@ -84,11 +95,6 @@ namespace PexitaMVC.Controllers
             {
                 return NotFound(e.Message);
             }
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

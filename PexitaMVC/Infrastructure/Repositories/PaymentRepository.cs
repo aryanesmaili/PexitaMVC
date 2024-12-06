@@ -18,7 +18,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Executes a stored procedure to fetch the payment by ID
             PaymentModel? result = _context.Payments
-                .FromSqlInterpolated($"EXECUTE pr_GetPaymentByID @PAYMENTID = {id};")
+                .FromSqlInterpolated($"SELECT * FROM Payments WHERE Id = {id};")
                 .FirstOrDefault();
 
             return result;
@@ -29,11 +29,11 @@ namespace PexitaMVC.Infrastructure.Repositories
         /// </summary>
         /// <param name="id">The ID of the payment to retrieve.</param>
         /// <returns>A Task representing the asynchronous operation, containing the PaymentModel if found, otherwise null.</returns>
-        public async Task<PaymentModel?> GetByIDAsync(int id)
+        public async Task<PaymentModel?> GetByIDAsync(int id)   
         {
             // Executes a stored procedure asynchronously to fetch the payment by ID
             PaymentModel? result = await _context.Payments
-                .FromSqlInterpolated($"EXECUTE pr_GetPaymentByID @PAYMENTID = {id};")
+                .FromSqlInterpolated($"SELECT * FROM Payments WHERE Id = {id};")
                 .FirstOrDefaultAsync();
 
             return result;
@@ -48,7 +48,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Executes a stored procedure to fetch payments associated with a user
             List<PaymentModel>? result = _context.Payments
-                .FromSqlInterpolated($"EXECUTE pr_GetPaymentsOfUser @USERID = {userId};")
+                .FromSqlInterpolated($"SELECT * FROM Payments WHERE UserId = {userId};")
                 .ToList();
 
             return result;
@@ -63,7 +63,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Executes a stored procedure asynchronously to fetch payments associated with a user
             List<PaymentModel>? result = await _context.Payments
-                .FromSqlInterpolated($"EXECUTE pr_GetPaymentsOfUser @USERID = {userId};")
+                .FromSqlInterpolated($"SELECT * FROM Payments WHERE UserId = {userId};")
                 .ToListAsync();
 
             return result;

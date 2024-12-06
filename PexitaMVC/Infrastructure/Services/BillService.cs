@@ -34,7 +34,7 @@ namespace PexitaMVC.Infrastructure.Services
             BillModel newRecord = _mapper.Map<BillModel>(billCreateDTO);
 
             // now we resolve the users present in this bill
-            UserModel Owner = _userRepository.GetByID(int.Parse(billCreateDTO.OwnerID)) ?? throw new NotFoundException($"User with ID {billCreateDTO.OwnerID} Not Found.");
+            UserModel Owner = await _userRepository.GetByIDAsync(billCreateDTO.OwnerID) ?? throw new NotFoundException($"User with ID {billCreateDTO.OwnerID} Not Found.");
             newRecord.OwnerID = Owner.Id;
             newRecord.Owner = Owner;
 

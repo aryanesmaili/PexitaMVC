@@ -4,7 +4,7 @@ using PexitaMVC.Core.Repositories;
 namespace PexitaMVC.Core.Interfaces
 {
     public interface IUserRepository :
-        IGetRepository<UserModel>,
+        IUserGetRepository<UserModel>,
         IGetWithRelationsRepository<UserModel>,
         IUpdateRepository<UserModel>
     {

@@ -61,7 +61,7 @@ namespace PexitaMVC.Tests
             };
 
             _mapperMock.Setup(m => m.Map<BillModel>(billCreateDTO)).Returns(bill);
-            _userRepositoryMock.Setup(u => u.GetByID(int.Parse(billCreateDTO.OwnerID))).Returns(owner);
+            _userRepositoryMock.Setup(u => u.GetByIDAsync(billCreateDTO.OwnerID)).ReturnsAsync(owner);
             _userRepositoryMock.Setup(u => u.GetUsersByUsernamesAsync(It.IsAny<ICollection<string>>())).ReturnsAsync([owner, payer]);
             _billRepositoryMock.Setup(b => b.AddAsync(bill)).ReturnsAsync(bill);
             _mapperMock.Setup(m => m.Map<BillDTO>(bill)).Returns(billDTO);
@@ -71,7 +71,7 @@ namespace PexitaMVC.Tests
 
             // Assert
             _mapperMock.Verify(m => m.Map<BillModel>(billCreateDTO), Times.Once);
-            _userRepositoryMock.Verify(u => u.GetByID(int.Parse(billCreateDTO.OwnerID)), Times.Once);
+            _userRepositoryMock.Verify(u => u.GetByIDAsync(billCreateDTO.OwnerID), Times.Once);
             _billRepositoryMock.Verify(b => b.AddAsync(bill), Times.Once);
             Assert.Equal(billDTO, result);
         }
@@ -87,7 +87,7 @@ namespace PexitaMVC.Tests
                 Usernames = new Dictionary<string, double> { { "John", 50.0 } },
                 TotalAmount = 50.0
             };
-            _userRepositoryMock.Setup(x => x.GetByID(int.Parse(billCreateDTO.OwnerID))).Returns((UserModel)null!);
+            _userRepositoryMock.Setup(x => x.GetByIDAsync(billCreateDTO.OwnerID)).ReturnsAsync((UserModel)null!);
 
             // Act and assert
             var exception = await Assert.ThrowsAsync<NotFoundException>(async () =>
@@ -98,7 +98,7 @@ namespace PexitaMVC.Tests
             Assert.Equal("User with ID 132913901 Not Found.", exception.Message);
 
             // Verify that the method was called as expected
-            _userRepositoryMock.Verify(repo => repo.GetByID(It.IsAny<int>()), Times.Once);
+            _userRepositoryMock.Verify(repo => repo.GetByIDAsync(It.IsAny<string>()), Times.Once);
             _billRepositoryMock.Verify(repo => repo.AddAsync(It.IsAny<BillModel>()), Times.Never); // Ensure no bill were added
         }
 
