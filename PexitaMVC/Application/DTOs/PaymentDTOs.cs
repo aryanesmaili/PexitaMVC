@@ -9,7 +9,7 @@
     public class PaymentDTO : BasePaymentDTO
     {
         public int ID { get; set; }
-        public int UserID { get; set; }
+        public string UserID { get; set; } = string.Empty;
         public required SubUserDTO User { get; set; }
         public int BillID { get; set; }
         public required SubBillDTO Bill { get; set; }
