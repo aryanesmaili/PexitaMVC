@@ -12,7 +12,7 @@ This project is designed as a learning platform for Clean Architecture, SOLID pr
 - **Database Integration**: MS SQL Server with Docker deployment.
 - **Unit Testing**: Comprehensive testing using xUnit.
 
----
+
 
 ## Tech Stack
 - **Framework**: ASP.NET Core MVC
@@ -21,12 +21,12 @@ This project is designed as a learning platform for Clean Architecture, SOLID pr
 - **Language**: C#
 - **Testing**: xUnit
 - **Other Tools**: Docker for database containerization
----
+
 ## Prerequisites
 - [.NET SDK 8.0+](https://dotnet.microsoft.com/download)
 - [Docker](https://www.docker.com/)
 - SQL Server Management Studio (optional, for database inspection)
----
+
 ## Architecture Overview
 PexitaMVC follows Clean Architecture principles:
 
@@ -34,6 +34,6 @@ PexitaMVC follows Clean Architecture principles:
 - **Application**: Manages application-level rules and interfaces.
 - **Infrastructure**: Handles database interactions and external dependencies.
 - **Presentation**: The MVC layer with Controllers, Views, and Models.
----
+
 ## License
 **This project is licensed under the GPLv3 License. See [LICENSE](LICENSE.txt) for details.**
