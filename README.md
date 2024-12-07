@@ -2,7 +2,7 @@
 
 PexitaMVC is a web application built with ASP.NET Core MVC that simplifies the process of splitting bills among friends or groups. Unlike traditional bill-splitting apps that divide costs equally, PexitaMVC allows users to specify how much each person has to pay, accommodating situations where contributions are unequal. 
 
-This project is designed as a learning platform for Clean Architecture, SOLID principles, testing and other essential skills.
+This project is designed as a learning platform for T-SQL, Clean Architecture, SOLID principles, testing and other essential skills.
 
 
 ## Features
@@ -18,7 +18,7 @@ This project is designed as a learning platform for Clean Architecture, SOLID pr
 - **Framework**: ASP.NET Core MVC
 - **Database**: MS SQL Server (deployed via Docker)
 - **Authentication**: ASP.NET Core Identity
-- **Language**: C#
+- **Language**: C#, T-SQL
 - **Testing**: xUnit
 - **Other Tools**: Docker for database containerization
 
