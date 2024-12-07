@@ -18,7 +18,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Executes a stored procedure to fetch the payment by ID
             PaymentModel? result = _context.Payments
-                .FromSqlInterpolated($"SELECT * FROM Payments WHERE Id = {id};")
+                .FromSqlInterpolated($"SELECT * FROM Payments WHERE Id = {id}")
                 .FirstOrDefault();
 
             return result;
@@ -33,7 +33,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Executes a stored procedure asynchronously to fetch the payment by ID
             PaymentModel? result = await _context.Payments
-                .FromSqlInterpolated($"SELECT * FROM Payments WHERE Id = {id};")
+                .FromSqlInterpolated($"SELECT * FROM Payments WHERE Id = {id}")
                 .FirstOrDefaultAsync();
 
             return result;
@@ -48,7 +48,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Executes a stored procedure to fetch payments associated with a user
             List<PaymentModel>? result = _context.Payments
-                .FromSqlInterpolated($"SELECT * FROM Payments WHERE UserId = {userId};")
+                .FromSqlInterpolated($"SELECT * FROM Payments WHERE UserId = {userId}")
                 .ToList();
 
             return result;
@@ -63,7 +63,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Executes a stored procedure asynchronously to fetch payments associated with a user
             List<PaymentModel>? result = await _context.Payments
-                .FromSqlInterpolated($"SELECT * FROM Payments WHERE UserId = {userId};")
+                .FromSqlInterpolated($"SELECT * FROM Payments WHERE UserId = {userId}")
                 .ToListAsync();
 
             return result;
@@ -78,7 +78,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Executes a stored procedure to update a payment record
             int rowsAffected = _context.Database
-                .ExecuteSqlInterpolated($"EXECUTE pr_UpdatePayment @PAYMENTID = {entity.Id}, @AMOUNT = {entity.Amount}, @ISPAID = {entity.IsPaid};");
+                .ExecuteSqlInterpolated($"EXECUTE pr_UpdatePayment @PAYMENTID = {entity.Id}, @AMOUNT = {entity.Amount}, @ISPAID = {entity.IsPaid}");
 
             return rowsAffected;
         }
@@ -92,7 +92,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Executes a stored procedure asynchronously to update a payment record
             int rowsAffected = await _context.Database
-                .ExecuteSqlInterpolatedAsync($"EXECUTE pr_UpdatePayment @PAYMENTID = {entity.Id}, @AMOUNT = {entity.Amount}, @ISPAID = {entity.IsPaid};");
+                .ExecuteSqlInterpolatedAsync($"EXECUTE pr_UpdatePayment @PAYMENTID = {entity.Id}, @AMOUNT = {entity.Amount}, @ISPAID = {entity.IsPaid}");
 
             return rowsAffected;
         }

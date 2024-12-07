@@ -7,16 +7,16 @@
 <div class="container">
     <form id="bill-form">
         <label class="form-label" for="Title">Title</label>
-        <input class="form-control mb-3" type="text" name="Title" asp-for="Title" value="Dinner" />
+        <input class="form-control mb-3" type="text" name="Title" asp-for="Title" />
         <label class="form-label" for="TotalAmount">TotalAmount</label>
-        <input class="form-control mb-3" type="number" name="TotalAmount" asp-for="TotalAmount" step="1"  value="123"/>
+        <input class="form-control mb-3" type="number" name="TotalAmount" asp-for="TotalAmount" step="1" />
         <input hidden class="form-control" type="text" name="Id" value="@ViewBag.UserId" asp-for="OwnerID" />
         <div id="payers_div" class="mb-3">
             <div class="mb-2 payer-div">
                 <label class="form-label" for="payer_email">Payer Email</label>
-                <input class="form-control" type="text" name="payer_email" placeholder="John Doe" value="aryanesmailiea@gmail.com" />
+                <input class="form-control" type="text" name="payer_email" placeholder="John Doe" />
                 <label class="form-label" for="pay_value"></label>
-                <input class="form-control" type="number" name="pay_value" placeholder="12.99"  value="123"/>
+                <input class="form-control" type="number" name="pay_value" placeholder="12.99" />
             </div>
         </div>
         <div class="mb-2">

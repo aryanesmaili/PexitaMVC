@@ -9,7 +9,7 @@ namespace PexitaMVC.Application.Interfaces
         /// </summary>
         /// <param name="paymentID">ID of the payment to be paid.</param>
         /// <returns>a <see cref="PaymentDTO"/> object showing the new state of the payment.</returns>
-        Task<PaymentDTO> Pay(int paymentID);
+        Task<PaymentDTO> PayAsync(int paymentID);
 
         /// <summary>
         /// Gets the List of Payments for a user.

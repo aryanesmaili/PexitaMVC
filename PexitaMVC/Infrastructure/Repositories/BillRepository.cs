@@ -31,7 +31,7 @@ namespace PexitaMVC.Infrastructure.Repositories
             // Execute the stored procedure to insert the bill and return the result
             List<BillPaymentUserDBResult> result = _context.Database.
                 SqlQuery<BillPaymentUserDBResult>(
-                $"EXECUTE pr_InsertBill @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount}, @UserID = {entity.OwnerID}, @PaymentsJson = {payments};"
+                $"EXECUTE pr_InsertBill @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount}, @UserID = {entity.OwnerID}, @PaymentsJson = {payments}"
                 ).ToList();
 
             // Map the result to BillModel, assuming only one bill record is returned
@@ -69,19 +69,19 @@ namespace PexitaMVC.Infrastructure.Repositories
         /// <returns>A Task containing the added BillModel with its generated ID and other details.</returns>
         public async Task<BillModel> AddAsync(BillModel entity)
         {
-                // Serialize the bill payments to JSON for storage
-                string payments = JsonSerializer.Serialize(
-                entity.BillPayments.Select(bp => new Dictionary<string, object>
-                {
-                    ["Amount"] = bp.Amount,
-                    ["IsPaid"] = bp.IsPaid,
-                    ["UserId"] = bp.UserId
-                }));
+            // Serialize the bill payments to JSON for storage
+            string payments = JsonSerializer.Serialize(
+            entity.BillPayments.Select(bp => new Dictionary<string, object>
+            {
+                ["Amount"] = bp.Amount,
+                ["IsPaid"] = bp.IsPaid,
+                ["UserId"] = bp.UserId
+            }));
 
             // Execute the stored procedure to insert the bill asynchronously and return the result
             List<BillPaymentUserDBResult> result = await _context.Database
                 .SqlQuery<BillPaymentUserDBResult>(
-                $"EXECUTE pr_InsertBill @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount}, @UserID = {entity.OwnerID}, @PaymentsJson = {payments};"
+                $"EXECUTE pr_InsertBill @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount}, @UserID = {entity.OwnerID}, @PaymentsJson = {payments}"
                 ).ToListAsync();
 
             // Map the result to BillModel, assuming only one bill record is returned
@@ -122,7 +122,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Execute the stored procedure to delete the bill and return the number of affected rows
             int rowsAffected = _context.Database
-                .ExecuteSqlInterpolated($"EXECUTE pr_DeleteBill @BILLID = {Entity.Id};");
+                .ExecuteSqlInterpolated($"EXECUTE pr_DeleteBill @BILLID = {Entity.Id}");
 
             return rowsAffected;
         }
@@ -136,7 +136,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Execute the stored procedure to delete the bill asynchronously and return the number of affected rows
             int rowsAffected = await _context.Database
-                .ExecuteSqlInterpolatedAsync($"EXECUTE pr_DeleteBill @BILLID = {Entity.Id};");
+                .ExecuteSqlInterpolatedAsync($"EXECUTE pr_DeleteBill @BILLID = {Entity.Id}");
 
             return rowsAffected;
         }
@@ -178,12 +178,35 @@ namespace PexitaMVC.Infrastructure.Repositories
         /// <returns>An IEnumerable of BillModel objects representing the payer's bills.</returns>
         public IEnumerable<BillModel>? GetPayersBills(string PayerID)
         {
-            // Execute the stored procedure to retrieve bills for the given payer
-            List<BillModel> result = _context.Bills
-                .FromSqlInterpolated($"SELECT * FROM Bills WHERE OwnerID = {PayerID}")
-                .ToList();
+            try
+            {
+                // Execute the stored procedure to retrieve bills for the given payer
+                List<BillPaymentDBResult> results = _context.Database
+                    .SqlQuery<BillPaymentDBResult>($"EXEC pr_GetAllBillsWithPayments @USERID = {PayerID}")
+                    .ToList();
 
-            return result;
+                // Group the results by BillId and map to BillModel with related PaymentModels
+                return results.GroupBy(r => new { r.Id, r.Title, r.TotalAmount, r.BillUserID })
+                    .Select(group => new BillModel
+                    {
+                        Id = group.Key.Id,
+                        Title = group.Key.Title,
+                        TotalAmount = group.Key.TotalAmount,
+                        OwnerID = group.Key.BillUserID,
+                        BillPayments = group.Select(payment => new PaymentModel
+                        {
+                            Id = payment.PaymentId,
+                            Amount = payment.PaymentAmount,
+                            IsPaid = payment.PaymentIsPaid,
+                            UserId = payment.PaymentUserID,
+                            BillID = payment.PaymentBillID
+                        }).ToList()
+                    }).ToList();
+            }
+            catch (ArgumentNullException)
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -193,12 +216,35 @@ namespace PexitaMVC.Infrastructure.Repositories
         /// <returns>A Task representing the asynchronous operation, containing an IEnumerable of BillModel objects representing the payer's bills.</returns>
         public async Task<IEnumerable<BillModel>?> GetPayersBillsAsync(string PayerID)
         {
-            // Execute the stored procedure to retrieve bills for the given payer asynchronously
-            List<BillModel> result = await _context.Bills
-                .FromSqlInterpolated($"SELECT * FROM Bills WHERE OwnerID = {PayerID}")
-                .ToListAsync();
+            try
+            {
+                // Execute the stored procedure to retrieve bills for the given payer asynchronously
+                List<BillPaymentDBResult> results = await _context.Database
+                        .SqlQuery<BillPaymentDBResult>($"EXEC pr_GetAllBillsWithPayments @USERID = {PayerID}")
+                        .ToListAsync();
 
-            return result;
+                // Group the results by BillId and map to BillModel with related PaymentModels
+                return results.GroupBy(r => new { r.Id, r.Title, r.TotalAmount, r.BillUserID })
+                    .Select(group => new BillModel
+                    {
+                        Id = group.Key.Id,
+                        Title = group.Key.Title,
+                        TotalAmount = group.Key.TotalAmount,
+                        OwnerID = group.Key.BillUserID,
+                        BillPayments = group.Select(payment => new PaymentModel
+                        {
+                            Id = payment.PaymentId,
+                            Amount = payment.PaymentAmount,
+                            IsPaid = payment.PaymentIsPaid,
+                            UserId = payment.PaymentUserID,
+                            BillID = payment.PaymentBillID
+                        }).ToList()
+                    }).ToList();
+            }
+            catch (ArgumentNullException)
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -248,7 +294,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Execute the stored procedure to update the bill and return the number of affected rows
             int rowsAffected = _context.Database
-                .ExecuteSqlInterpolated($"EXECUTE pr_UpdateBill @BILLID = {entity.Id}, @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount};");
+                .ExecuteSqlInterpolated($"EXECUTE pr_UpdateBill @BILLID = {entity.Id}, @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount}");
 
             return rowsAffected;
         }
@@ -262,7 +308,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         {
             // Execute the stored procedure to update the bill asynchronously and return the number of affected rows
             int rowsAffected = await _context.Database
-                .ExecuteSqlInterpolatedAsync($"EXECUTE pr_UpdateBill @BILLID = {entity.Id}, @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount};");
+                .ExecuteSqlInterpolatedAsync($"EXECUTE pr_UpdateBill @BILLID = {entity.Id}, @Title = {entity.Title}, @TotalAmount = {entity.TotalAmount}");
 
             return rowsAffected;
         }

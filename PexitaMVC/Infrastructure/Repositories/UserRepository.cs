@@ -77,8 +77,8 @@ namespace PexitaMVC.Infrastructure.Repositories
             try
             {
                 // Execute the stored procedure to retrieve unpaid bills for the user
-                List<BillPaymentDBResult> results = _context.Set<BillPaymentDBResult>()
-                    .FromSqlInterpolated($"EXEC pr_GetUnpaidBillsWithPaymentsForUser @UserID = {userId};")
+                List<BillPaymentDBResult> results = _context.Database
+                    .SqlQuery<BillPaymentDBResult>($"EXEC pr_GetUnpaidBillsWithPaymentsForUser @UserID = {userId}")
                     .ToList();
 
                 // Group the results by BillId and map to BillModel with related PaymentModels
@@ -115,8 +115,8 @@ namespace PexitaMVC.Infrastructure.Repositories
             try
             {
                 // Execute the stored procedure to retrieve unpaid bills for the user asynchronously
-                List<BillPaymentDBResult> results = await _context.Set<BillPaymentDBResult>()
-                    .FromSqlInterpolated($"EXEC pr_GetUnpaidBillsWithPaymentsForUser @UserID = {userId};")
+                List<BillPaymentDBResult> results = await _context.Database
+                    .SqlQuery<BillPaymentDBResult>($"EXEC pr_GetUnpaidBillsWithPaymentsForUser @UserID = {userId}")
                     .ToListAsync();
 
                 // Group the results by BillId and map to BillModel with related PaymentModels
@@ -179,7 +179,6 @@ namespace PexitaMVC.Infrastructure.Repositories
             return users;
         }
 
-
         /// <summary>
         /// Retrieves a user with related entities based on the provided include expressions.
         /// </summary>
@@ -226,7 +225,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         public int Update(UserModel entity)
         {
             int rowsAffected = _context.Database.ExecuteSqlInterpolated(
-                $"EXEC pr_UpdateUser @UserID = {entity.Id}, @Username = {entity.UserName}, @Name = {entity.Name}, @Email = {entity.Email}, @PhoneNumber = {entity.PhoneNumber};");
+                $"EXEC pr_UpdateUser @UserID = {entity.Id}, @Username = {entity.UserName}, @Name = {entity.Name}, @Email = {entity.Email}, @PhoneNumber = {entity.PhoneNumber}");
 
             return rowsAffected;
         }
@@ -239,7 +238,7 @@ namespace PexitaMVC.Infrastructure.Repositories
         public async Task<int> UpdateAsync(UserModel entity)
         {
             int rowsAffected = await _context.Database.ExecuteSqlInterpolatedAsync(
-                $"EXEC pr_UpdateUser @UserID = {entity.Id}, @Username = {entity.UserName}, @Name = {entity.Name}, @Email = {entity.Email}, @PhoneNumber = {entity.PhoneNumber};");
+                $"EXEC pr_UpdateUser @UserID = {entity.Id}, @Username = {entity.UserName}, @Name = {entity.Name}, @Email = {entity.Email}, @PhoneNumber = {entity.PhoneNumber}");
 
             return rowsAffected;
         }

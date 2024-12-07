@@ -4,47 +4,50 @@
 
 @model List<PexitaMVC.Application.DTOs.BillDTO>
 
-<div class="container">
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Title</th>
-                <th>Total Amount</th>
-                <th>Is Completed</th>
-                <th>Payments</th>
-            </tr>
-        </thead>
-        <tbody>
-            @{
-                foreach (var item in Model)
-                {
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">User Bills</h4>
+        </div>
+        <div class="card-body p-3">
+            <table class="table table-hover table-striped">
+                <thead class="table-dark">
                     <tr>
-                        <td>
-                            @item.ID
-                        </td>
-                        <td>
-                            @item.Title
-                        </td>
-                        <td>
-                            @item.TotalAmount
-                        </td>
-                        <td>
-                            @item.IsCompleted
-                        </td>
-                        <td>
-                            @{
-                                foreach (var payment in item.Payments)
-                                {
-                                    <span class="mb-1">
-                                        @($"{payment.Payer.Email}: {payment.Amount}, {(payment.IsPaid ? "Paid" : "Not Paid")}")
-                                    </span>
-                                }
-                            }
-                        </td>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
                     </tr>
-                }
-            }
-        </tbody>
-    </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.ID</td>
+                            <td>@item.Title</td>
+                            <td>@item.TotalAmount.ToString("C")</td>
+                            <td>
+                                @if (item.IsCompleted)
+                                {
+                                    <span class="badge bg-success">Completed</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Pending</span>
+                                }
+                            </td>
+                            <td>
+                                <button class="btn btn-danger delete-bill mx-1" type="button" data-bill-id="@item.ID">Delete</button>
+                                @if (item.Payments.Any(x => x.UserID == ViewBag.UserId) && !item.Payments.First(x => x.UserID == ViewBag.UserId).IsPaid)
+                                {
+                                    <button class="btn btn-warning text-white pay-bill mx-1" type="button" data-payment-id="@item.Payments.First(x => x.UserID == ViewBag.UserId).ID">Pay</button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>

@@ -1,0 +1,82 @@
+﻿<button class="btn btn-primary" onclick="GetBills(false)">All Owned Bills</button>
+<button class="btn btn-info text-white" onclick="GetBills(true)">Unpaid Bills</button>
+
+<div id="bills-container">
+    <!-- The table will load here dynamically. -->
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        GetBills(false);
+    });
+
+    async function GetBills(getUnpaidBills) {
+        try {
+            const response = await fetch(`/Home/BillTable?getUnpaidBills=${getUnpaidBills}`);
+            if (!response.ok) {
+                alert("Error fetching data: " + response.statusText);
+                return;
+            }
+            const html = await response.text();
+            document.getElementById('bills-container').innerHTML = html;
+
+            attachDeleteBillEvents();
+            attachPayBillEvents();
+        } catch (error) {
+            console.error("Fetch error:", error);
+            alert("An unexpected error occurred.");
+        }
+    };
+
+    function attachDeleteBillEvents() {
+        $('.delete-bill').on('click', function () {
+            const billID = $(this).data('bill-id');
+            if (confirm("Are you sure you want to delete this bill?")) {
+                $.ajax({
+                    url: '/Home/DeleteBillAction',
+                    type: 'DELETE',
+                    contentType: 'application/json',
+                    data: JSON.stringify(billID),
+                    success: function (response) {
+                        if (response.success) {
+                            $(`button[data-bill-id="${billID}"]`).closest('tr').remove();
+                        }
+                    },
+                    error: function () {
+                        alert("Error: Unable to delete the bill. Please try again.");
+                    }
+                });
+            }
+        });
+    };
+
+    function attachPayBillEvents() {
+        $('.pay-bill').on('click', function () {
+            const paymentID = $(this).data('payment-id');
+            if (confirm("Are you sure you want to mark this bill as paid?")) {
+                $.ajax({
+                    url: '/Home/PayBillAction',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(paymentID),
+                    success: function (response) {
+                        alert("Bill marked as paid successfully");
+                        $(`button[data-payment-id="${paymentID}"]`).closest('tr').remove();
+                    },
+                    error: function (xhr) {
+                        if (xhr.status === 404) {
+                            alert("Payment not found: " + xhr.responseText);
+                        } else {
+                            alert("Error: Unable to mark bill as paid. Please try again.");
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        attachDeleteBillEvents();
+        attachPayBillEvents();
+    });
+</script>

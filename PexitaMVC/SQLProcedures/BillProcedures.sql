@@ -67,6 +67,7 @@ BEGIN TRANSACTION;
     END CATCH
 END;
 go
+
 -- PROCEDURE TO DELETE A BILL AND IT'S PAYMENTS.
 CREATE PROCEDURE pr_DeleteBill @BILLID INT
 AS
@@ -84,5 +85,28 @@ AS
         Title = COALESCE(@Title, Title),
         TotalAmount = COALESCE(@TotalAmount, TotalAmount)
         WHERE Id = @BILLID;
+    END
+GO
+
+CREATE PROCEDURE pr_GetAllBillsWithPayments 
+    @USERID NVARCHAR(MAX)
+AS
+    BEGIN
+    SELECT
+        b.Id AS Id, -- Bill ID
+        b.Title AS Title, -- Bill Title
+        b.TotalAmount AS TotalAmount, -- Bill Total Amount
+        b.OwnerID AS BillUserID, -- The User who created the bill
+        p.Id AS PaymentId, -- Payment ID
+        p.Amount AS PaymentAmount, -- Payment Amount
+        p.IsPaid AS PaymentIsPaid, -- Is the payment paid?
+        p.UserId AS PaymentUserID, -- The User who made this payment
+        p.BillId AS PaymentBillID -- Link to the bill
+    FROM 
+        Bills b
+    INNER JOIN 
+        Payments p ON p.BillID = b.Id
+    WHERE 
+        b.OwnerId = @USERID;
     END
 GO

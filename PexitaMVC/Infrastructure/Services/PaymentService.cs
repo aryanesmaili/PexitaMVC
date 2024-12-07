@@ -25,7 +25,7 @@ namespace PexitaMVC.Infrastructure.Services
         /// <returns>List of Payments the user has.</returns>
         public async Task<List<PaymentDTO>> GetUserPayments(int UserID)
         {
-            List<PaymentModel> result = await _paymentRepository.GetPaymentsOfUserAsync(UserID.ToString());
+            List<PaymentModel> result = await _paymentRepository.GetPaymentsOfUserAsync(UserID.ToString()) ?? [];
             return result.Count > 0 ? result.Select(_mapper.Map<PaymentDTO>).ToList() : [];
         }
 
@@ -36,7 +36,7 @@ namespace PexitaMVC.Infrastructure.Services
         /// <returns>a <see cref="PaymentDTO"/> object showing the new state of the payment.</returns>
         /// <exception cref="NotFoundException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        public async Task<PaymentDTO> Pay(int paymentID)
+        public async Task<PaymentDTO> PayAsync(int paymentID)
         {
             // Fetch the payment from Database.
             PaymentModel payment = await _paymentRepository.GetByIDAsync(paymentID) ?? throw new NotFoundException($"Payment With ID {paymentID} was not found.");

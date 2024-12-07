@@ -26,13 +26,6 @@ namespace PexitaMVC.Controllers
             return View();
         }
 
-        public async Task<IActionResult> BillList(string UserID)
-        {
-            List<BillDTO> result = (await _userService.GetAllBillsForUserAsync(UserID)).ToList();
-
-            return View(result);
-        }
-
         [Authorize]
         public IActionResult Profile()
         {
@@ -47,6 +40,34 @@ namespace PexitaMVC.Controllers
 
             return View();
         }
+
+        [Authorize]
+        public async Task<IActionResult> BillTable(bool getUnpaidBills = false)
+        {
+            try
+            {
+                string UserID = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new ArgumentException($"User Not Logged In");
+                List<BillDTO> result;
+
+                if (getUnpaidBills)
+                    result = (await _userService.GetUnpaidBillsForUserAsync(UserID)).ToList();
+                else
+                    result = (await _userService.GetAllBillsForUserAsync(UserID)).ToList();
+
+                ViewBag.UserId = UserID;
+                return PartialView("BillTable", result);
+            }
+            catch (ArgumentException e)
+            {
+                return Unauthorized(e.Message);
+            }
+            catch (Exception e)
+            {
+                DebugError error = new() { Message = e.Message, StackTrace = e.StackTrace ?? "", InnerException = e.InnerException?.ToString() ?? "" };
+                return BadRequest(error);
+            }
+        }
+
 
         [Authorize]
         [HttpPost]
@@ -67,27 +88,32 @@ namespace PexitaMVC.Controllers
 
         [Authorize]
         [HttpDelete]
-        public async Task<IActionResult> DeleteBillAction(int BillID)
+        public async Task<IActionResult> DeleteBillAction([FromBody] int BillID)
         {
             try
             {
                 await _billService.DeleteBillAsync(BillID);
 
-                return Ok();
+                return Ok("The Bill Was Deleted Successfully.");
             }
             catch (NotFoundException e)
             {
                 return NotFound(e.Message);
             }
+            catch (Exception e)
+            {
+                DebugError error = new() { Message = e.Message, StackTrace = e.StackTrace ?? "", InnerException = e.InnerException?.ToString() ?? "" };
+                return StatusCode(500, error);
+            }
         }
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> PayBillAction(int paymentID)
+        public async Task<IActionResult> PayBillAction([FromBody] int paymentID)
         {
             try
             {
-                var result = await _paymentService.Pay(paymentID);
+                var result = await _paymentService.PayAsync(paymentID);
                 return Ok(result);
             }
 
@@ -95,6 +121,16 @@ namespace PexitaMVC.Controllers
             {
                 return NotFound(e.Message);
             }
+            catch (Exception e)
+            {
+                DebugError error = new() { Message = e.Message, StackTrace = e.StackTrace ?? "", InnerException = e.InnerException?.ToString() ?? "" };
+                return StatusCode(500, error);
+            }
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
