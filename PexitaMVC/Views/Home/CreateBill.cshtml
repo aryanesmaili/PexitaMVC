@@ -124,7 +124,7 @@
             const billId = $(this).data('id'); // Get the ID of the bill to delete
 
             $.ajax({
-                url: `https://localhost:7247/Home/DeleteBillAction/${billId}`, // Replace with your delete endpoint
+                url: `/Home/DeleteBillAction/${billId}`, // Replace with your delete endpoint
                 type: 'DELETE',
                 success: function () {
                     // Remove the row from the table
